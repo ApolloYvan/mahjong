@@ -1,0 +1,19 @@
+{
+  "provenance": "synthetic_test_fixture",
+  "note": "本 fixture 为合成测试数据，用于回归锁定 mj/state.py:canonical_chain_count 的规范字段读取口径。字段结构参考独立技术评审报告确认的真实缺陷模式（历史 decision 中有 128 条 god.chain_count>0，却没有任何一条保存顶层 chain_count 字段），但本 fixture 的具体手牌/game_id 是构造的，不是原始服务端记录。",
+  "rule_reference": "规范字段是 god.chain_count；god.chain_count 与顶层 chain_count 冲突时，god.chain_count 优先（这部分与本次修正无关，仍然成立）。2026-09-24 correctness 修正：原「决策 #3」声称杠动作已计入链次数、gang_open 不得再独立乘番——这条依据未经真实数据验证，全量语料 round_ended 真实 detail/fan 字段核对后证明是错的（杠开与链次数是两套独立机制），rules.evaluate 已改为 gang_open 无条件 ×2，见 docs/experiments/OFFLINE_REPORT.md「剩余差距」十一.6。",
+  "case": {
+    "description": "god.chain_count=2 与顶层 chain_count=0 冲突：应以 god.chain_count 为准",
+    "snapshot": {
+      "seat": 0,
+      "my_hand": ["1w", "2w", "3w", "4w", "5w", "6w", "7w", "8w", "9w", "东", "东", "东", "白"],
+      "drawn_tile": "中",
+      "god": {"chain_count": 2},
+      "chain_count": 0,
+      "melds": [[], [], [], []]
+    },
+    "expected_canonical_chain_count": 2,
+    "expected_fan_with_gang_open_false": "evaluate(..., chain_count=2, gang_open=False) 的 fan 应包含 2**2=4 倍链贡献",
+    "expected_fan_with_gang_open_true_equals_false": "2026-09-24 已更正：evaluate(..., chain_count=2, gang_open=True) 的 fan 应是 gang_open=False 时的 2 倍（gang_open 是独立的 ×2 番值来源，与 chain_count 无关，见 docs/experiments/OFFLINE_REPORT.md 十一.6 的真实数据核实）"
+  }
+}

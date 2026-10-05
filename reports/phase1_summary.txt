@@ -1,0 +1,239 @@
+阶段一收尾批处理开始：Thu Oct  1 03:16:23 UTC 2026（模式=smoke，步骤=replay snapshot arena calibrate gap timing tests）
+每一步跑之前都会重新检查 bot 是否在跑；某一步失败会记录原因并继续下一步。
+=== [03:16:23] 开始：sim_replay_check 冒烟（smoke） ===
+缓存命中 20 个文件，需要重新回放 0 个
+
+=== 回放结果 ===
+文件数 20，局数 160
+不一致数（局末四项 + catch_play + 碰窗口 + 动作非法）：0
+其中服务端代打弃牌 71 次（照常回放，单独计数，不算不一致）
+能胡但没胡（不强制胡，正常现象，不算不一致）：54 次
+detail 映射后一致 160 次（映射规则见 _map_chain_label；映射前原始文本不同 2 次，映射后仍不一致的已计入上面的不一致数，不再只统计不算数）
+跳过局：0（无起手牌 0 / 无 dealer 0 / 截断 0）
+跳过占比：0.000%（验收要求 <=0.1%，且需确认属日志缺陷；分母=全部遇到的局数 160，含截断）
+
+=== 流局停摸时的 wall_remaining 分布（应全部是 21） ===
+流局局数 n=0，分布={}
+
+=== 响应窗口核对 ===
+碰窗口核对次数 5541，其中因为有人直接声明而短路 362 次（只做子集校验）
+吃窗口核对次数 5179，其中因为有人直接声明而短路 347 次（只做子集校验）
+catch_play 逐弃牌核对次数 5549
+
+=== 事件应用计数（诊断用） ===
+  applied_chi                  347
+  applied_gang                 30
+  applied_pass                 9435
+  applied_peng                 345
+  applied_tile_discarded       5549
+  applied_tile_drawn           4870
+  unhandled_event_game_ended   20
+  illegal（动作非法）                0
+  engine_exception（内部异常）       0
+
+不一致数 = 0。
+=== [sim_replay_check 冒烟] 成功，耗时 0s ===
+=== [03:16:23] 开始：sim_snapshot_check 冒烟（smoke） ===
+读取 10 个决策日志文件……
+共 28653 个 (game_id, round_no) 分组带决策记录
+  已处理 20 / 20 个分组（复用缓存 20）
+
+=== 3c 精确 seq 对齐核对结果（完整明细见 /Users/yuanye/coding_workspace/mahjong/reports/sim_snapshot_check_mismatches.tsv） ===
+分组数 20，决策记录总数 797，成功对齐 0，对不上号 729（91.47%，验收线 <1%）
+  skipped_no_round_match                        68
+  unaligned_no_metric_for_state_hash            729
+seq 边界自纠次数（选点只看 phase+turn，往前退几格才对上）：0
+  按退的格数分布（0=不用退，unmatched=退到底 phase+turn 仍对不上、用最原始结果）：
+
+逐字段不一致（分母=对齐数 0）：
+其中 drawn_tile 的严格子集（真实 phase=draw 且 turn==本座位）不一致：0
+
+按 field 分类查看明细，例如：
+  grep -P '\tresponding_seats\t' /Users/yuanye/coding_workspace/mahjong/reports/sim_snapshot_check_mismatches.tsv | head -20
+  grep -P '\tdrawn_tile\t' /Users/yuanye/coding_workspace/mahjong/reports/sim_snapshot_check_mismatches.tsv | awk -F'\t' '$5=="draw" && $6=="draw"' | head -20
+=== [sim_snapshot_check 冒烟] 成功，耗时 127s ===
+=== [03:18:30] 开始：arena2 冒烟（smoke 子命令）（smoke） ===
+seed=0 最终分数=[24, -8, -8, -8] 非法动作={}
+seed=1 最终分数=[16, -9, -9, 2] 非法动作={}
+
+耗时 2.2s，累计非法动作：{}
+非法动作根因（完整见 reports/arena2_illegal.tsv）：无
+=== [arena2 冒烟（smoke 子命令）] 成功，耗时 4s ===
+=== [03:18:34] 开始：sim_calibrate 冒烟（smoke） ===
+扫描真实日志……
+  已扫 1000 / 3478
+  已扫 2000 / 3478
+  已扫 3000 / 3478
+  已扫 3478 / 3478
+跑 arena2 自对局 2 个种子……
+
+=== arena2自对局（局数=16，胡牌数=8） ===
+  流局率 0.500 ± 0.245
+  每局chi次数 2.062 ± 0.809 (n=16)
+  每局peng次数 4.250 ± 1.271 (n=16)
+  每局gang次数 0.375 ± 0.245 (n=16)
+  累计胡牌率(庄) 第6/10/14摸: 0.125±0.162, 0.188±0.191, 0.188±0.191
+  累计胡牌率(闲) 第6/10/14摸: 0.000±0.000, 0.021±0.040, 0.083±0.078
+  番数分布 1:0.88  2:0.12  4:0.00  8:0.00  16+:0.00
+  占胡比例 baotou:0.00  qidui:0.12  piao:0.00  gang_kai:0.00  four_white:0.00
+
+=== 高手（局数=10100，胡牌数=3612） ===
+  流局率 0.002 ± 0.001
+  每局chi次数 2.340 ± 0.029 (n=10100)
+  每局peng次数 2.272 ± 0.029 (n=10100)
+  每局gang次数 0.238 ± 0.010 (n=10100)
+  累计胡牌率(庄) 第6/10/14摸: 0.120±0.011, 0.253±0.014, 0.295±0.015
+  累计胡牌率(闲) 第6/10/14摸: 0.087±0.006, 0.218±0.008, 0.261±0.009
+  番数分布 1:0.68  2:0.27  4:0.04  8:0.00  16+:0.00
+  占胡比例 baotou:0.31  qidui:0.02  piao:0.01  gang_kai:0.02  four_white:0.00
+
+=== 我们(当前)（局数=6271，胡牌数=2310） ===
+  流局率 0.002 ± 0.001
+  每局chi次数 2.169 ± 0.036 (n=6271)
+  每局peng次数 2.198 ± 0.036 (n=6271)
+  每局gang次数 0.217 ± 0.012 (n=6271)
+  累计胡牌率(庄) 第6/10/14摸: 0.111±0.013, 0.248±0.018, 0.292±0.019
+  累计胡牌率(闲) 第6/10/14摸: 0.080±0.007, 0.196±0.010, 0.241±0.010
+  番数分布 1:0.71  2:0.26  4:0.03  8:0.00  16+:0.00
+  占胡比例 baotou:0.28  qidui:0.01  piao:0.01  gang_kai:0.02  four_white:0.00
+
+=== 我们(以前)（局数=11147，胡牌数=4566） ===
+  流局率 0.005 ± 0.001
+  每局chi次数 2.441 ± 0.028 (n=11147)
+  每局peng次数 2.010 ± 0.026 (n=11147)
+  每局gang次数 0.208 ± 0.009 (n=11147)
+  累计胡牌率(庄) 第6/10/14摸: 0.114±0.009, 0.239±0.012, 0.283±0.013
+  累计胡牌率(闲) 第6/10/14摸: 0.074±0.004, 0.188±0.006, 0.227±0.007
+  番数分布 1:0.82  2:0.17  4:0.01  8:0.00  16+:0.00
+  占胡比例 baotou:0.16  qidui:0.01  piao:0.01  gang_kai:0.01  four_white:0.00
+
+完整机器可读结果见 /Users/yuanye/coding_workspace/mahjong/reports/sim_calibrate.json（阶段二 tools/mc_check.py calibrate 的拟合标靶）
+=== [sim_calibrate 冒烟] 成功，耗时 20s ===
+=== [03:18:54] 开始：gap_breakdown 冒烟（smoke） ===
+  已扫 500 / 3478
+  已扫 1000 / 3478
+  已扫 1500 / 3478
+  已扫 2000 / 3478
+  已扫 2500 / 3478
+  已扫 3000 / 3478
+  已扫 3478 / 3478
+共 110072 条 (房间,座位,局) 记录
+
+--- 方向：用房间哈希偶数选高手/奇数半分解（高手=9/10 名候选人通过筛选）---
+  本方向滤掉的候选高手（选人半里 diff<=0 或 n<30）：放假了偷偷训练(diff=-1.35,n=478)
+格子(财神/副露)         局数(我)   局数(高手)         分差 |         做庄        胡得少        胡得小        输得多
+0白/0组               725     1019      -0.50 |      +0.01      +0.11      -0.13      -0.49
+               95%CI（按房间聚类 bootstrap）        [-0.61,+0.18] [-0.04,+0.01] [-0.37,+0.16] [-0.13,+0.22] [-0.60,+0.11]
+0白/1组              1136     1761      -1.49 |      -0.00      -0.88      -0.21      -0.39
+               95%CI（按房间聚类 bootstrap）        [-1.82,-0.75] [-0.04,+0.01] [-1.08,-0.40] [-0.28,-0.12] [-0.61,-0.19]
+0白/2+组             1150     1702      -0.21 |      -0.02      -0.31      -0.03      +0.15
+               95%CI（按房间聚类 bootstrap）        [-0.92,-0.26] [-0.10,-0.02] [-1.09,-0.12] [-0.43,+0.12] [-0.09,+0.27]
+1白/0组               362      467      -0.88 |      +0.05      -0.13      -0.81      +0.01
+               95%CI（按房间聚类 bootstrap）        [-2.03,+1.59] [-0.08,+0.16] [-0.82,+1.03] [-1.53,-0.28] [-0.18,+0.97]
+1白/1组               510      797      -0.11 |      +0.01      +0.27      -0.49      +0.09
+               95%CI（按房间聚类 bootstrap）        [-1.26,+0.85] [-0.00,+0.27] [-0.14,+0.66] [-1.42,+0.18] [-0.14,+0.31]
+1白/2+组              454      686      -0.51 |      -0.04      +0.23      -0.41      -0.29
+               95%CI（按房间聚类 bootstrap）        [-1.59,+1.12] [-0.13,+0.10] [-1.22,+1.33] [-0.76,+0.32] [-0.57,-0.05]
+2白/1组                85      147      -5.28 |      -0.22      -3.24      -1.03      -0.78
+               95%CI（按房间聚类 bootstrap）        [-9.39,-3.97] [-0.25,+0.11] [-7.46,-1.81] [-0.57,+1.86] [-1.51,-0.39]
+对账：本方向所有格子里 |四项之和 − 实际分差| 的最大值 = 8.66e-15（验收线 < 0.01）
+
+--- 方向：用房间哈希奇数选高手/偶数半分解（高手=9/10 名候选人通过筛选）---
+  本方向滤掉的候选高手（选人半里 diff<=0 或 n<30）：铳一色14(diff=-0.00,n=400)
+格子(财神/副露)         局数(我)   局数(高手)         分差 |         做庄        胡得少        胡得小        输得多
+0白/0组               650      798      -0.35 |      +0.01      -0.31      -0.02      -0.03
+               95%CI（按房间聚类 bootstrap）        [-0.95,+0.40] [-0.01,+0.02] [-0.45,+0.59] [-0.42,+0.15] [-0.27,+0.08]
+0白/1组              1110     1428      +0.00 |      -0.00      -0.05      -0.28      +0.34
+               95%CI（按房间聚类 bootstrap）        [-0.64,+0.26] [-0.05,-0.00] [-0.64,+0.31] [-0.38,-0.16] [+0.33,+0.51]
+0白/2+组             1123     1383      +0.10 |      -0.00      +0.21      +0.04      -0.14
+               95%CI（按房间聚类 bootstrap）        [-0.48,+1.27] [-0.03,+0.02] [-0.69,+1.06] [-0.03,+0.23] [-0.34,+0.24]
+1白/0组               319      330      +0.18 |      -0.00      +0.58      -0.36      -0.03
+               95%CI（按房间聚类 bootstrap）        [-2.66,+0.75] [-0.05,+0.61] [-1.12,+1.15] [-1.75,+0.04] [-0.69,+0.67]
+1白/1组               501      661      -1.04 |      -0.00      -0.49      -0.50      -0.04
+               95%CI（按房间聚类 bootstrap）        [-1.49,+0.18] [-0.04,+0.19] [-0.56,+0.31] [-1.32,-0.36] [-0.36,+0.78]
+1白/2+组              454      541      -0.52 |      +0.00      -0.82      +0.33      -0.03
+               95%CI（按房间聚类 bootstrap）        [-2.25,+0.50] [-0.10,+0.13] [-1.91,+0.24] [-0.02,+0.49] [-0.32,+0.27]
+2白/1组                77       97      -6.64 |      +2.42      +1.20     -10.65      +0.38
+               95%CI（按房间聚类 bootstrap）        [-17.76,-1.91] [+0.05,+4.40] [-3.28,+3.67] [-25.05,-0.20] [+0.23,+1.17]
+对账：本方向所有格子里 |四项之和 − 实际分差| 的最大值 = 8.77e-15（验收线 < 0.01）
+
+完整明细见 /Users/yuanye/coding_workspace/mahjong/reports/gap_breakdown_detail.txt
+读法：两个方向的数字应该大致一致（差异在 bootstrap CI 范围内）——如果明显不一致，说明存在选择偏差，结论要打折扣。
+=== [gap_breakdown 冒烟] 成功，耗时 8s ===
+=== [03:19:02] 开始：timing_chain 冒烟（smoke） ===
+读取 2 个日志文件……
+
+=== 时间链汇总（完整明细见 /Users/yuanye/coding_workspace/mahjong/reports/timing_chain_detail.tsv） ===
+决策记录 211183 条（成功路径），decision_attempt 213875 条，超时 3 条
+
+段1 state 请求本身耗时（elapsed_ms，按 trigger 分）：
+  notify                       n=514461  p50=   354.9ms  p90=   908.8ms  p99=  2033.5ms  max= 27598.1ms
+  recovery                     n=  3107  p50=   374.3ms  p90=  1323.0ms  p99=  3937.7ms  max=  6533.1ms
+  watchdog                     n=205037  p50=   425.2ms  p90=  1007.6ms  p99=  2203.7ms  max= 27315.0ms
+段1 附加：notify 落盘 -> state_request_metric(trigger=notify) 落盘的挂钟差：
+  notify_to_state_wall         n=514461  p50=   281.2ms  p90=   605.4ms  p99=  1188.7ms  max=900669.0ms
+
+段2 state 返回 -> 决策完成（client_prepare_ms，本地计算）：
+  全部                           n=211183  p50=     0.0ms  p90=    22.7ms  p99=   212.2ms  max= 60858.8ms
+
+段3 决策完成 -> action 返回（action_request_ms，成功路径 + 失败路径 attempt->outcome）：
+  成功路径                         n=211183  p50=     7.0ms  p90=    21.0ms  p99=   248.4ms  max=  9149.6ms
+  失败路径(attempt->outcome)       n=  2674  p50=     7.3ms  p90=   585.5ms  p99=  4279.9ms  max=160031.9ms
+
+按同时在打的场次数分层（decision_attempt/outcome 扫描线并发数）：
+  并发=1 段2(计算)                  n=203959  p50=     0.0ms  p90=    20.7ms  p99=   183.7ms  max= 60858.8ms
+  并发=1 段3(action)              n=203959  p50=     6.8ms  p90=    18.8ms  p99=    96.5ms  max=  9149.6ms
+  并发=2 段2(计算)                  n=  5549  p50=     0.0ms  p90=   129.2ms  p99=   827.8ms  max= 46516.2ms
+  并发=2 段3(action)              n=  5549  p50=    14.4ms  p90=   335.6ms  p99=   677.2ms  max=  3057.6ms
+  并发=3 段2(计算)                  n=  1137  p50=     0.0ms  p90=    53.9ms  p99=   635.6ms  max=  2315.1ms
+  并发=3 段3(action)              n=  1137  p50=   132.4ms  p90=   527.7ms  p99=  1188.5ms  max=  3937.4ms
+  并发=4+ 段2(计算)                 n=   538  p50=     0.0ms  p90=    44.6ms  p99=   376.2ms  max=  1958.1ms
+  并发=4+ 段3(action)             n=   538  p50=   147.7ms  p90=   569.8ms  p99=  1903.6ms  max=  4355.7ms
+
+最近 5 次 outcome=timeout（HTTP 层超时，跟游戏内 3s/1s 节奏无关，见模块 docstring 关于 mj.api.Api timeout=35 的说明）：
+  decision_id=96d2afb365bf4a6a8191489650bce51a game_id=a_59629a9eedaf_r1_b2_t0 seat=1 action=pass attempted_at=2026-09-23T13:50:12.790370+00:00 outcome_at=2026-09-23T13:50:47.787847+00:00 等待=34997ms
+  decision_id=aeac59c9af7843c0a256c6b6b1cdc009 game_id=a_59629a9eedaf_r1_b1_t0 seat=1 action=discard attempted_at=2026-09-23T13:50:12.790000+00:00 outcome_at=2026-09-23T13:50:47.787009+00:00 等待=34997ms
+  decision_id=d510d71a62a544e682653ead42bb2d7f game_id=a_59629a9eedaf_r1_b8_t0 seat=2 action=discard attempted_at=2026-09-23T13:50:12.785914+00:00 outcome_at=2026-09-23T13:50:47.786191+00:00 等待=35000ms
+
+最近 5 次「draw 阶段计算耗时最长」的决策（compute 逼近/挤占 3s 出牌预算的代理信号，不是真的超时——服务器超时不会体现在我们自己的日志里，只能靠 prepare_ms 逼近 3000ms 推断风险）：
+  decision_id=a352df641f094d6781308f2e088f0c7c game_id=a_b5300d249057_r1_b0_t0 time=2026-09-23T14:36:47.327753+00:00 prepare_ms=60859 action_request_ms=14.55
+  decision_id=873e1a8244af431dbe60102d3324e4b3 game_id=a_b5300d249057_r1_b3_t0 time=2026-09-23T14:46:02.126728+00:00 prepare_ms=54915 action_request_ms=2944.607
+  decision_id=0a44d48502e54c43afde63ee8dd70f28 game_id=a_b5300d249057_r1_b7_t0 time=2026-09-23T14:45:43.864893+00:00 prepare_ms=46516 action_request_ms=169.928
+  decision_id=926d25c2458e4bc1899dcb12c31b7d3c game_id=a_b5300d249057_r1_b3_t0 time=2026-09-23T14:45:58.690484+00:00 prepare_ms=29406 action_request_ms=30.168
+  decision_id=13137f21eb904c4dbf4c93a68fa34831 game_id=a_cc2e43c453b2_r1_b0_t0 time=2026-09-23T15:00:23.901777+00:00 prepare_ms=24108 action_request_ms=8.847
+
+=== 阶段二动态预算公式用的常数 ===
+action 往返 p99（决策完成->action返回，成功路径）：248ms
+"服务端开始计时"到"我们拿到快照"的估计值：**估不出真值**，用 notify 到达->state 返回的挂钟差做下界近似，p50=281ms p99=1189ms（真正的服务端计时起点可能更早，这只是我们能观测到的下界）
+快照里没有服务端回合开始时间/截止时间字段（通读 snapshot.get(...) 调用点确认，见模块 docstring）
+=== [timing_chain 冒烟] 成功，耗时 35s ===
+=== [03:19:37] 开始：单元测试（smoke，排除 test_live_preflight，见脚本注释）（smoke） ===
+.......................................[AsyncDecisionLog] drop summary: emergency_drop_count=19 dropped_count={'action_rejected': 19}
+.[AsyncDecisionLog] drop summary: emergency_drop_count=29 dropped_count={'action_rejected': 29}
+.[AsyncDecisionLog] drop summary: emergency_drop_count=0 dropped_count={'state': 18}
+.[AsyncDecisionLog] drop summary: emergency_drop_count=0 dropped_count={'state': 9, 'notify': 10}
+..[AsyncDecisionLog] write error (kind='state'): OSError: simulated disk error
+.......[AsyncDecisionLog] write error (kind='state'): OSError: simulated disk error
+[AsyncDecisionLog] write error (kind='state'): OSError: simulated disk error
+[AsyncDecisionLog] write error (kind='state'): OSError: simulated disk error
+[AsyncDecisionLog] write error (kind='state'): OSError: simulated disk error
+[AsyncDecisionLog] write error (kind='state'): OSError: simulated disk error
+[AsyncDecisionLog] write error (kind='state'): OSError: simulated disk error
+[AsyncDecisionLog] write error (kind='state'): OSError: simulated disk error
+[AsyncDecisionLog] write error (kind='state'): OSError: simulated disk error
+[AsyncDecisionLog] write error (kind='state'): OSError: simulated disk error
+[AsyncDecisionLog] write error (kind='state'): OSError: simulated disk error
+[AsyncDecisionLog] write error (kind='state'): OSError: simulated disk error
+[AsyncDecisionLog] write error (kind='state'): OSError: simulated disk error
+[AsyncDecisionLog] write error (kind='state'): OSError: simulated disk error
+[AsyncDecisionLog] write error (kind='state'): OSError: simulated disk error
+[AsyncDecisionLog] write error (kind='state'): OSError: simulated disk error
+[AsyncDecisionLog] write error (kind='state'): OSError: simulated disk error
+[AsyncDecisionLog] write error (kind='state'): OSError: simulated disk error
+[AsyncDecisionLog] write error (kind='state'): OSError: simulated disk error
+[AsyncDecisionLog] write error (kind='state'): OSError: simulated disk error
+[AsyncDecisionLog] write error (kind='state'): OSError: simulated disk error
+.[AsyncDecisionLog] write error (kind='state'): OSError: simulated disk error
+[AsyncDecisionLog] write error (kind='state'): OSError: simulated disk error
+[AsyncDecisionLog] write error (kind='state'): OSError: simulated disk error
+.......................................................

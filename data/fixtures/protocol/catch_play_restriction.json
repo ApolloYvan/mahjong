@@ -1,0 +1,89 @@
+{
+  "provenance": "synthetic_test_fixture",
+  "note": "本 fixture 为合成测试数据，字段结构对齐 mj/state.py:DecisionState.catch_restricted 的真实实现与 tests/test_state.py 的既有回归测试，不是真实服务端记录。",
+  "rule_reference": "HANDOFF.md 397 行：『抓打圈：打出财神那一圈，其余玩家不能吃/碰/明杠（仅暗杠+自摸胡），且只能打刚摸到的牌；打财神者本人豁免。圈内吃碰后再打财神=财飘链+1；打其他牌=链断解圈』。mj/state.py:catch_restricted() 实现：god.catch_play=true 且 god_discarder_seat != 本座位时限制生效。",
+  "cases": [
+    {
+      "description": "抓打圈生效：座位0非打财神者（god_discarder_seat=2），只能打刚摸到的牌",
+      "snapshot": {
+        "seat": 0,
+        "phase": "draw",
+        "turn": 0,
+        "my_hand": [
+          "1w",
+          "2w"
+        ],
+        "drawn_tile": "3w",
+        "dealer": 0,
+        "wall_remaining": 40,
+        "god": {
+          "chain_count": 2,
+          "piao": 1,
+          "catch_play": true,
+          "god_discarder_seat": 2
+        },
+        "melds": [
+          [],
+          [],
+          [],
+          []
+        ]
+      },
+      "expected_catch_restricted": true
+    },
+    {
+      "description": "抓打圈豁免：座位2是打财神者本人（god_discarder_seat=2, seat=2），不受限制",
+      "snapshot": {
+        "seat": 2,
+        "phase": "draw",
+        "turn": 0,
+        "my_hand": [
+          "1w",
+          "2w"
+        ],
+        "drawn_tile": "3w",
+        "dealer": 0,
+        "wall_remaining": 40,
+        "god": {
+          "chain_count": 2,
+          "piao": 1,
+          "catch_play": true,
+          "god_discarder_seat": 2
+        },
+        "melds": [
+          [],
+          [],
+          [],
+          []
+        ]
+      },
+      "expected_catch_restricted": false
+    },
+    {
+      "description": "非抓打圈状态：catch_play=false，任何座位都不受限制",
+      "snapshot": {
+        "seat": 0,
+        "phase": "draw",
+        "turn": 0,
+        "my_hand": [
+          "1w",
+          "2w"
+        ],
+        "drawn_tile": "3w",
+        "dealer": 0,
+        "wall_remaining": 40,
+        "god": {
+          "catch_play": false,
+          "chain_count": 0
+        },
+        "melds": [
+          [],
+          [],
+          [],
+          []
+        ]
+      },
+      "expected_catch_restricted": false
+    }
+  ]
+}

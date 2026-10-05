@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "description": "mj.datastore SQLite schema 版本标签，与 mj/datastore.py:SCHEMA_VERSION 保持一致。数据库文件本身不入库（见 README 排除清单），此文件仅记录当前查询层期望的表结构版本，供导入/查询 CLI 及未来迁移脚本核对。v2 变更（阶段A返修，SONNET5_DATA_REVIEW.md）：source_files 新增 status（importing/complete/failed）与 finished_at/error_message；round_results.winner_seat 用哨兵值 -1 代替 NULL 以修复 UNIQUE 约束对 NULL 不去重的问题；decision_id 派生算法改用 source_sha256+line_no+kind 避免同时间戳碰撞。",
+  "tables": [
+    "schema_meta",
+    "source_files",
+    "games",
+    "round_results",
+    "decisions",
+    "errors",
+    "aggregates"
+  ],
+  "last_updated": "2026-09-21"
+}

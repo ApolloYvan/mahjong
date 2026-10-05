@@ -1,0 +1,24 @@
+{
+  "provenance": "derived_from_audit",
+  "source_document": "/Users/yuanye/Documents/ChatGPT/麻将大赛/review/audit_data.json",
+  "source_field_path": "portal_mismatches[1]",
+  "note": "本 fixture 的 game_id/round_no/server_fan/server_detail/local_fan 字段取自独立技术评审报告已核验的真实历史审计聚合结果（audit_data.json），不是原始服务端 JSON 文件的重放，也不是本次会话虚构的数据。原始服务端牌谱文件（portal_events/a_5a06a8f48d67/b4.json）当前工作区不存在，因此本 fixture 只能还原审计聚合已经记录的字段，不补充审计数据之外的手牌/副露/弃牌等细节——那些字段没有可信来源，按规则不得臆造。",
+  "purpose": "回归锁定 mj/reconcile.py 与 tools/data_tool.py reconcile 子命令：验证对账逻辑能自动发现『服务端 fan4、本地 fan2』一类差异，而不是依赖单次人工核对。",
+  "case": {
+    "game_id": "a_5a06a8f48d67_r1_b4_t0",
+    "round_no": 5,
+    "server_truth": {
+      "fan": 4,
+      "detail": ["平胡", "财飘", "爆头"],
+      "source": "server_truth",
+      "note_on_missing_fields": "audit_data.json 的 portal_mismatches 条目未记录 scores/next_dealer，此处不臆造缺失字段，保持为 null。"
+    },
+    "local_estimate": {
+      "fan": 2,
+      "detail": null,
+      "source": "local_estimate",
+      "note": "audit_data.json 的 portal_mismatches[1] 只记录了 local_fan=2，未记录 local_detail 数组；独立技术评审报告正文提到过 detail 应类似 ['平胡','爆头']，但这是报告叙述，不是该条聚合记录本身的字段，因此此处 detail 保持为 null，不用报告正文文字回填结构化字段。"
+    }
+  },
+  "expected_assertion": "reconcile(local, server) 对该 key=(game_id, round_no, winner_seat) 应产出 discrepancies 非空，local_fan=2，server_fan=4。"
+}

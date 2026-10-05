@@ -1,0 +1,29 @@
+{
+  "provenance": "synthetic_test_fixture",
+  "note": "本 fixture 为本次会话根据仓库既有单测场景（tests/test_bot_state.py 的 test_wall_tail_forbids_bomb_gang_at_20 / test_wall_tail_allows_bomb_gang_at_21）逐字段核对转录的合成测试数据，不是真实服务端快照。用于回归锁定『20 张墙尾禁止杠适用于所有杠路径』规则。",
+  "rule_reference": "官网规则核验：20 张墙尾（含）以内禁止杠；历史 bug（已在阶段1修复）：bot._gang_bomb_choice 曾用 wall_remaining<=4 而非 <=20，绕开了这条规则。",
+  "cases": [
+    {
+      "description": "wall_remaining=20（含边界）：禁止杠爆",
+      "snapshot": {
+        "drawn_tile": "1w",
+        "my_hand": ["1w", "1w", "1w", "1w", "4w", "5w", "6w", "7w", "8w", "9w", "1t", "2t", "3t", "白"],
+        "seat": 0,
+        "wall_remaining": 20,
+        "melds": [[], [], [], []]
+      },
+      "expected": "mj.bot._gang_bomb_choice(snapshot) 应返回 None"
+    },
+    {
+      "description": "wall_remaining=21（刚超过边界）：允许杠爆",
+      "snapshot": {
+        "drawn_tile": "1w",
+        "my_hand": ["1w", "1w", "1w", "1w", "4w", "5w", "6w", "7w", "8w", "9w", "1t", "2t", "3t", "白"],
+        "seat": 0,
+        "wall_remaining": 21,
+        "melds": [[], [], [], []]
+      },
+      "expected": "mj.bot._gang_bomb_choice(snapshot) 应返回 {'action': 'gang', 'tile': '1w'}（与 tests/test_bot_state.py:test_wall_tail_allows_bomb_gang_at_21 完全一致的真实断言）"
+    }
+  ]
+}

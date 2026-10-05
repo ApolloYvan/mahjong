@@ -1,0 +1,7 @@
+{"time":"2026-09-20T00:00:00Z","kind":"decision","payload":{"decision_id":"d1","game_id":"synthetic_g1","round_no":1,"seat":0,"decision":{"action":"discard","tile":"1w"}}}
+THIS LINE IS NOT VALID JSON {{{ intentionally malformed for importer robustness test
+{"time":"2026-09-20T00:00:05Z","kind":"decision","payload":{"decision_id":"d2","game_id":"synthetic_g1","round_no":1,"seat":1,"decision":{"action":"pass"}}}
+{"time":"2026-09-20T00:00:10Z","kind":"error","payload":{"game_id":"synthetic_g1","error":"429 Too Many Requests"}}
+{"time":"2026-09-20T00:00:11Z","kind":"error","payload":{"game_id":"synthetic_g1","error":"timeout waiting for /state response"}}
+{"time":"2026-09-20T00:00:12Z","kind":"error","payload":{"game_id":"synthetic_g1","error":"409 Conflict: already registered"}}
+{"time":"2026-09-20T00:00:13Z","kind":"hu_detail","payload":{"game_id":"synthetic_g1","round_no":1,"seat":0,"fan":1,"detail":["平胡"]}}

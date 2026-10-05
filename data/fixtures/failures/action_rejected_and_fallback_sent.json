@@ -1,0 +1,37 @@
+{
+  "provenance": "synthetic_test_fixture",
+  "note": "本 fixture 为合成测试数据，字段结构与 mj/logging.py:DecisionLog.action_rejected/fallback_sent 的真实落盘格式一致，但内容是构造的，不是真实对局记录。用于验证 mj/data_import.py 把这两类 kind 正确归类为 errors 表记录（category=action_rejected/fallback_sent）。",
+  "records": [
+    {
+      "time": "2026-09-20T05:39:33Z",
+      "kind": "action_rejected",
+      "payload": {
+        "game_id": "synthetic_g1",
+        "seat": 0,
+        "round_no": 5,
+        "phase": "discard",
+        "decision": {"action": "discard", "tile": "1w"},
+        "rejections": 1,
+        "error": "illegal tile: not in hand",
+        "wall_remaining": 40,
+        "hand": ["2w", "3w", "4w"],
+        "drawn_tile": "5w",
+        "melds": [[], [], [], []]
+      }
+    },
+    {
+      "time": "2026-09-20T05:40:01Z",
+      "kind": "fallback_sent",
+      "payload": {
+        "game_id": "synthetic_g1",
+        "seat": 0,
+        "round_no": 5,
+        "tile": "2w",
+        "accepted": true,
+        "error": "planner timeout, fell back to legacy discard",
+        "hand": ["2w", "3w", "4w"],
+        "drawn_tile": "5w"
+      }
+    }
+  ]
+}

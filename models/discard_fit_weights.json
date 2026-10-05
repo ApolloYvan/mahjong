@@ -1,0 +1,15 @@
+{
+ "rule_fitted_discard_enabled": 1,
+ "fd_uke": 100,
+ "fd_uke3": 50,
+ "fd_pair_far": 106,
+ "fd_pair_near": 28,
+ "fd_hon_iso": 270,
+ "fd_hon_pair": -29,
+ "fd_hon_trip": -19,
+ "fd_term": 102,
+ "fd_e28": 37,
+ "fd_isolated": -92,
+ "fd_seen": 77,
+ "fd_pair_route": -4
+}

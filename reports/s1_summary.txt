@@ -1,0 +1,25 @@
+S1 批处理（full）开始：2026年10月 3日 星期六 21时53分43秒 CST，步骤：tests check dataset，MJ_JOBS=6
+预计耗时：tests <1 分钟；check 1-3 分钟；dataset 5-15 分钟（--keep 0.25，可 --max-minutes 续跑）；合计约 10-20 分钟
+=== [21:53:43] 开始：test_nn_encode（full） ===
+........
+----------------------------------------------------------------------
+Ran 8 tests in 1.123s
+
+OK
+=== [test_nn_encode] 成功，耗时 1s ===
+=== [21:53:44] 开始：check_encoder（1 万个真实快照）（full） ===
+=== check_encoder（全量，10000 个真实快照，8s） ===
+FEATURE_DIM=1280；动作空间 42；标签分布 {36: 7751, 'discard': 1920, 34: 59, 40: 40, 41: 51, 39: 50, 37: 113, 35: 8, 38: 8}
+违例（0 为通过）：无
+线上日志 decision 记录（最近 3 个文件）：编码成功 5001，失败 0；落盘记录里缺的字段：{'discards': 5001, 'window_tile': 5001}
+=== [check_encoder（1 万个真实快照）] 成功，耗时 10s ===
+=== [21:53:54] 开始：build_dataset 全量（full） ===
+=== build_dataset（全量，47s；分片目录 /Users/yuanye/coding_workspace/mahjong/tools/.cache/train/parts） ===
+文件 3478 个：本次新处理 3478，已有分片跳过 0
+新增记录 1158345（训练 896488 / 验证 261857）；按谁：{'other': 729981, 'ours': 290508, 'master': 137856}
+按阶段：{'response_peng': 698720, 'draw': 233804, 'response_chi': 225821}
+非出牌动作：{'胡': 6804, '杠': 740, '过': 892650, '碰': 14955, '明杠': 796, '吃低': 5670, '吃中': 4733, '吃高': 5737}；出牌 226260
+标签无法映射 0，编码出错 0，标签不在合法集合内 0（无）
+=== [build_dataset 全量] 成功，耗时 48s ===
+
+跑完：2026年10月 3日 星期六 21时54分42秒 CST；汇总 reports/s1_summary.txt；数据集分片 tools/.cache/train/parts*/

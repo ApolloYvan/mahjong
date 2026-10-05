@@ -1,0 +1,71 @@
+阶段三批处理（full）开始：2026年10月 3日 星期六 12时29分50秒 CST，步骤：tests aball abhu speedlive，MJ_JOBS=6
+预计耗时（量级而非保证）：
+  tests     ~2-4 分钟
+  aball     100 分钟（--max-minutes 100，到点用已完成的种子出结果）
+  abhu      40 分钟（--max-minutes 40）
+  speedlive ~3 分钟（性能核 60s + 能效核 60s + 启动）
+  合计      约 2.5 小时
+=== [12:29:50] 开始：单元测试（mc 全部 + bot/hu_strategy/rule_switches）（full） ===
+.......................................................................................................................
+----------------------------------------------------------------------
+Ran 119 tests in 20.626s
+
+OK
+=== [单元测试（mc 全部 + bot/hu_strategy/rule_switches）] 成功，耗时 23s ===
+=== [12:30:13] 开始：arena2 ab 1v3 A=三个开关全开 B=当前配置（100 分钟）（full） ===
+到 --max-minutes 时间上限停止：完成 71 / 100000 个种子，只用已完成的种子出结果。
+=== A/B 配对检验（A=tools/overlays/mc_all.json B=<当前配置> layout=1v3，完整明细见 /Users/yuanye/coding_workspace/mahjong/reports/arena2_ab_1791007815.json） ===
+种子数 71（本次新跑 71，复用缓存 0），新跑耗时 6000.8s（84.52s/种子，--jobs 6）
+配对差 A−B（每局场均分，按种子聚类）：均值 -0.240，95%CI [-0.764, +0.284]（半宽 0.524）—— 置信区间包含 0
+第一名率：A 0.239  B 0.258  差 -0.019
+  [A] 胜率 0.232（528/2272 局），平均番数 1.49
+       占胡比例：baotou 33.7%(n=178)  qidui 1.5%(n=8)  piao_chain 2.5%(n=13)  gang_kai 0.0%(n=0)  four_white 0.8%(n=4)
+  [B] 胜率 0.256（1742/6816 局），平均番数 1.42
+       占胡比例：baotou 31.6%(n=551)  qidui 1.5%(n=27)  piao_chain 1.3%(n=23)  gang_kai 0.0%(n=0)  four_white 0.5%(n=8)
+非法动作（按类型）：无
+达到 ±0.3 分/局分辨率约需 217 个种子，--jobs 6 下预计耗时 51 分钟
+达到 ±0.5 分/局分辨率约需 79 个种子，--jobs 6 下预计耗时 19 分钟
+MC 决策 10366 次：推翻生产选择 1467（14.2%），MC 评估后保持生产(差异不显著) 8899（85.8%），技术性回落 0（0.0%）
+  单次 MC 决策耗时：p50 2355ms  p99 6130ms  max 9913ms（arena 固定 n，不是线上 1s 预算下的耗时）
+
+非法动作根因（按 动作类型/拒绝原因 分类，完整快照见 reports/arena2_illegal.tsv，验收线 0 条）：
+  （本次 0 条）
+=== [arena2 ab 1v3 A=三个开关全开 B=当前配置（100 分钟）] 成功，耗时 6003s ===
+=== [14:10:16] 开始：arena2 ab 1v3 A=只开 mc_hu_enabled B=当前配置（40 分钟）（full） ===
+到 --max-minutes 时间上限停止：完成 242 / 100000 个种子，只用已完成的种子出结果。
+=== A/B 配对检验（A=tools/overlays/mc_hu.json B=<当前配置> layout=1v3，完整明细见 /Users/yuanye/coding_workspace/mahjong/reports/arena2_ab_1791010218.json） ===
+种子数 242（本次新跑 242，复用缓存 0），新跑耗时 2401.0s（9.92s/种子，--jobs 6）
+配对差 A−B（每局场均分，按种子聚类）：均值 -0.101，95%CI [-0.219, +0.018]（半宽 0.119）—— 置信区间包含 0
+第一名率：A 0.253  B 0.251  差 +0.002
+  [A] 胜率 0.244（1887/7744 局），平均番数 1.41
+       占胡比例：baotou 31.7%(n=599)  qidui 1.5%(n=29)  piao_chain 1.3%(n=24)  gang_kai 0.0%(n=0)  four_white 0.3%(n=5)
+  [B] 胜率 0.251（5831/23232 局），平均番数 1.38
+       占胡比例：baotou 30.5%(n=1776)  qidui 1.4%(n=80)  piao_chain 1.3%(n=73)  gang_kai 0.0%(n=0)  four_white 0.3%(n=15)
+非法动作（按类型）：无
+达到 ±0.3 分/局分辨率约需 38 个种子，--jobs 6 下预计耗时 1 分钟
+达到 ±0.5 分/局分辨率约需 14 个种子，--jobs 6 下预计耗时 0 分钟
+MC 决策 2443 次：推翻生产选择 125（5.1%），MC 评估后保持生产(差异不显著) 2314（94.7%），技术性回落 4（0.2%）
+  回落原因：{'no_alternative': 4}
+  单次 MC 决策耗时：p50 871ms  p99 2957ms  max 4991ms（arena 固定 n，不是线上 1s 预算下的耗时）
+
+非法动作根因（按 动作类型/拒绝原因 分类，完整快照见 reports/arena2_illegal.tsv，验收线 0 条）：
+  （本次 0 条）
+=== [arena2 ab 1v3 A=只开 mc_hu_enabled B=当前配置（40 分钟）] 成功，耗时 2403s ===
+=== [14:50:19] 开始：speed-live 性能核（full） ===
+=== mc_check speed-live [perf]（真实快照 1795 个池，60s，cap 1.0s 从调用瞬间计时） ===
+MC 评估 60 次：推翻生产 12（20.0%），评估后保持生产(不显著) 48（80.0%），技术性回落 0（0.0%）
+  回落原因：无
+  类别：{'hu': 19, 'menqing': 16, 'joker_discard': 25}
+  单次耗时 ms：p50 1001  p90 1004  p99 1100  max 1100
+  对手参数 all_within_3pp=True
+=== [speed-live 性能核] 成功，耗时 62s ===
+=== [14:51:21] 开始：speed-live 能效核(taskpolicy -c background)（full） ===
+=== mc_check speed-live [eff]（真实快照 1795 个池，61s，cap 1.0s 从调用瞬间计时） ===
+MC 评估 60 次：推翻生产 2（3.3%），评估后保持生产(不显著) 19（31.7%），技术性回落 39（65.0%）
+  回落原因：{'insufficient_n': 29, 'timeout': 10}
+  类别：{'hu': 19, 'menqing': 16, 'joker_discard': 25}
+  单次耗时 ms：p50 1005  p90 1022  p99 1121  max 1121
+  对手参数 all_within_3pp=True
+=== [speed-live 能效核(taskpolicy -c background)] 成功，耗时 67s ===
+
+跑完：2026年10月 3日 星期六 14时52分28秒 CST；汇总 reports/phase3_summary.txt；arena2 明细 reports/arena2_ab_*.json，speed-live 明细 reports/mc_speed_live_*.json。

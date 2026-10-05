@@ -1,0 +1,209 @@
+diff -ur pa/mj/hu_strategy.py pb/mj/hu_strategy.py
+--- pa/mj/hu_strategy.py	2026-10-04 04:55:54
++++ pb/mj/hu_strategy.py	2026-10-04 04:55:54
+@@ -286,6 +286,10 @@
+     counts = hu_result.get("counts")
+     if not counts:
+         return None
++    # E3（s1_ev_enabled，默认 0）：按期望值决定弃胡，替换下面的"财神数 x 副露数"格子表（见 mj/s1_variants.py）
++    if weights.get("s1_ev_enabled", 0):
++        from . import s1_variants
++        return s1_variants.ev_choice(snapshot, hu_result, weights, _decline_discard_choice)
+     effective_jokers = counts[TILE_INDEX[JOKER]]
+     meld_groups = _meld_groups(snapshot)
+     # 收窄后的触发格子（见上方 docstring 的分格核算表）：
+@@ -304,9 +308,15 @@
+         triggers = effective_jokers >= 2 or (effective_jokers == 1 and single_all)
+     if not triggers:
+         return None
+-    if snapshot.get("wall_remaining", 40) - 20 < 8:
++    # E1（s1_wall_relax_enabled，默认 0）：墙尾门槛 8 -> s1_wall_relax_min（默认 4）；关闭时 wall_min() 恒为 8
++    from . import s1_variants
++    if snapshot.get("wall_remaining", 40) - 20 < s1_variants.wall_min(weights):
+         return None
+-    return _decline_discard_choice(snapshot, hu_result)
++    tile = _decline_discard_choice(snapshot, hu_result)
++    # E2（s1_one_step_enabled，默认 0）：没有能直接转爆头的牌时，允许"差一步转爆头"的弃胡
++    if tile is None and weights.get("s1_one_step_enabled", 0):
++        tile = s1_variants.one_step_choice(snapshot, hu_result, weights, meld_groups)
++    return tile
+ 
+ 
+ def choose_hu_or_piao(snapshot, hu_result, thresholds=None):
+diff -ur pa/tools/arena2.py pb/tools/arena2.py
+--- pa/tools/arena2.py	2026-10-04 04:55:54
++++ pb/tools/arena2.py	2026-10-04 04:55:54
+@@ -49,6 +49,7 @@
+   ``--jobs`` 多进程跑，``smoke``/单场调试保持单进程可调试。
+ """
+ import argparse
++import contextlib
+ import glob
+ import hashlib
+ import itertools
+@@ -66,9 +67,10 @@
+ 
+ os.environ.setdefault("MJ_WEIGHTS_NO_FILE", "1")   # 冒烟/CI 默认不碰真实 weights.json；真对战由调用方决定
+ 
+-from mj.bot import choose_action  # noqa: E402
++from mj.bot import choose_action, hu_result  # noqa: E402
+ from mj.fit import frozen_file_weights, weights_overlay  # noqa: E402
+ from mj.mc.chain_tracker import ChainTracker  # noqa: E402
++from mj.rules import payout  # noqa: E402
+ from mj.sim.engine import IllegalActionError, Match  # noqa: E402
+ from mj.sim.snapshot import build_snapshot  # noqa: E402
+ 
+@@ -242,6 +244,7 @@
+         self._trackers = {}                # 座位 -> ChainTracker（MC 输入：飘出的财神数/链是否含杠）
+         self.mc_ms = []                    # 每次 MC 实际参与的决策的耗时（毫秒）
+         self.nn_ms = []                    # 每次网络策略实际给出动作的推理耗时（毫秒）
++        self._s1 = {}                      # (局号, 座位) -> {"fan","dealer"}：S1 弃胡（非爆头可胡但打了牌）事件，每局每座位只记一次
+ 
+     def _choose_fn(self, seat, snapshot):
+         overlay = self.seat_weights.get(seat)
+@@ -259,6 +262,13 @@
+                           else choose_action(snapshot, self.rules))
+         else:
+             action = choose_action(snapshot, self.rules)
++        if snapshot.get("phase") == "draw" and snapshot.get("drawn_tile") and action and action.get("action") == "discard":
++            key = (snapshot.get("round_no"), seat)
++            if key not in self._s1:
++                with (weights_overlay(overlay) if overlay else contextlib.nullcontext()):
++                    res = hu_result(snapshot, self.rules)
++                if res and not res.get("baotou"):
++                    self._s1[key] = {"fan": res.get("fan", 1), "dealer": snapshot.get("dealer") == seat}
+         if mc_ctx is not None:
+             self._trackers[seat].observe(snapshot, action)
+             rlog = mc_ctx.get("resid_log")
+@@ -313,6 +323,7 @@
+                     "delta_scores": delta, "cats": cats,
+                     "winner_draw_index": winner_draw_index, "winner_meld_count": winner_meld_count,
+                     "claims_per_seat": {"%d_%s" % k: v for k, v in round_meta["claims_per_seat"].items()},
++                    "s1": {s_: self._s1.pop((engine.round_no, s_)) for s_ in range(4) if (engine.round_no, s_) in self._s1},
+                 })
+         return self
+ 
+@@ -425,7 +436,7 @@
+                 cl = rec.get("claims_per_seat") or {}
+                 round_records.append({
+                     "label": labels[seat], "seat": seat, "seed": seed, "arrangement": arr_idx,
+-                    "is_dealer": rec["dealer"] == seat,
++                    "is_dealer": rec["dealer"] == seat, "s1": (rec.get("s1") or {}).get(seat),
+                     "chi": cl.get("%d_chi" % seat, 0), "peng": cl.get("%d_peng" % seat, 0), "gang": cl.get("%d_gang" % seat, 0),
+                     "round_no": rec["round_no"], "delta_score": rec["delta_scores"][seat],
+                     "is_winner": rec["winner"] == seat, "is_draw": rec["is_draw"],
+@@ -632,6 +643,30 @@
+     return out
+ 
+ 
++def _s1_table(round_records):
++    """S1 弃胡（非爆头可胡但没胡）：按标签的触发次数、最终自己胡的比例、相对"当场胡"的净得分差/次。"""
++    out = {}
++    for label in ("A", "B"):
++        rows = [r for r in round_records if r["label"] == label and r.get("s1")]
++        n = len(rows)
++        won = sum(1 for r in rows if r["is_winner"])
++        net = sum(r["delta_score"] - payout(r["s1"]["fan"], dealer=r["s1"]["dealer"]) for r in rows)
++        out[label] = {"n": n, "won": won, "net": net}
++    return out
++
++
++def _print_s1_table(round_records):
++    t = _s1_table(round_records)
++    if not (t["A"]["n"] or t["B"]["n"]):
++        return
++    parts = []
++    for label in ("A", "B"):
++        d = t[label]
++        parts.append("%s 触发 %d 次，最终胡 %d（%.0f%%），相对当场胡净 %+.1f/次" % (
++            label, d["n"], d["won"], 100.0 * d["won"] / d["n"] if d["n"] else 0.0, d["net"] / d["n"] if d["n"] else 0.0))
++    print("S1 弃胡（非爆头可胡但没胡）：" + "；".join(parts))
++
++
+ def _role_diff(round_records, flag):
+     """庄/闲分别的 A-B 配对差（按种子聚类）。"""
+     return _mean_ci95(_per_seed_diff([r for r in round_records if r.get("is_dealer") == flag]))
+@@ -813,6 +848,7 @@
+     _print_ab_summary("A/B 配对检验", args.a, args.b, args.layout, seeds, round_records,
+                       match_summaries, total_stats, new_runs, elapsed, reused, out_path, args.jobs)
+     _print_role_table(round_records)
++    _print_s1_table(round_records)
+     _print_mc_summary(total_stats, extras)
+     if getattr(args, "tag", None):
+         diffs = _per_seed_diff(round_records)
+@@ -823,7 +859,8 @@
+             json.dump({"tag": args.tag, "layout": args.layout, "a": args.a, "b": args.b, "n_seeds": len(seeds),
+                        "mean": mean, "lo": mean - half, "hi": mean + half,
+                        "dealer": _role_diff(round_records, True), "non_dealer": _role_diff(round_records, False),
+-                       "roles": {"%s_%s" % k: v for k, v in t.items()}}, f, ensure_ascii=False, indent=1)
++                       "roles": {"%s_%s" % k: v for k, v in t.items()}, "s1": _s1_table(round_records)},
++                      f, ensure_ascii=False, indent=1)
+     print("\n非法动作根因（按 动作类型/拒绝原因 分类，完整快照见 reports/arena2_illegal.tsv，验收线 0 条）：")
+     if illegal_cats:
+         for (action_kind, reason), n in illegal_cats.most_common(10):
+diff -ur pa/tools/arena_suite.sh pb/tools/arena_suite.sh
+--- pa/tools/arena_suite.sh	2026-10-04 04:55:54
++++ pb/tools/arena_suite.sh	2026-10-04 04:55:54
+@@ -13,6 +13,8 @@
+ #   V2 joker_nonbaotou_hu_disabled=1         平台应判现行显著更好（复现 243:0 旧 bug）
+ #   D1 dealer_route_enabled=0   D2 dealer_slow1_enabled=0   D3 s1_dealer_enabled=0
+ #   C1 rule_tenpai_peng_gang_relax_enabled=0   C2 gang_strict_enabled=1
++#   E1 s1_wall_relax_enabled=1（墙尾门槛 8->4）  E2 s1_one_step_enabled=1（差一步转爆头）  E3 s1_ev_enabled=1（p̂>p*+δ）——S1 放宽变体，
++#      要显式点名：MJ_JOBS=6 bash tools/arena_suite.sh E1 E2 E3（只跑 1v3，每组 20 分钟，可续跑；输出里带 S1 触发次数/胡率/净得分）
+ # 汇总 reports/arena_suite.txt（tools/arena_suite_report.py 生成，终端 <=40 行）；各组明细 reports/suite/*.json、reports/arena2_ab_*.json。
+ set -u
+ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+@@ -30,7 +32,7 @@
+     esac
+ done
+ MODE="full"; [ "${SMOKE}" = "1" ] && MODE="smoke"
+-[ -z "${GROUPS_SEL}" ] && GROUPS_SEL="V1 V2 D1 D2 D3 C1 C2"
++[ -z "${GROUPS_SEL}" ] && GROUPS_SEL="V1 V2 D1 D2 D3 C1 C2"   # E1-E3（S1 放宽）要显式点名：tools/arena_suite.sh E1 E2 E3
+ JOBS="${MJ_JOBS:-6}"
+ SUITE_MIN="${SUITE_MIN:-40}"
+ SUITE_LAYOUTS="${SUITE_LAYOUTS:-1v3 2v2}"
+@@ -51,7 +53,9 @@
+ for g in ${GROUPS_SEL}; do
+     A="tools/overlays/suite/${g}_a.json"
+     [ -f "${A}" ] || { log "=== [${g}] 没有 overlay ${A}，跳过 ==="; continue; }
+-    for layout in ${SUITE_LAYOUTS}; do
++    G_LAYOUTS="${SUITE_LAYOUTS}"; G_MIN="${PER_LAYOUT}"
++    case "${g}" in E*) G_LAYOUTS="${E_LAYOUTS:-1v3}"; G_MIN="${E_MIN:-20}" ;; esac   # E 组：只跑 1v3，每组 20 分钟（E_LAYOUTS / E_MIN 可改）
++    for layout in ${G_LAYOUTS}; do
+         sid="${g}_${layout}"
+         if done_ok "${sid}"; then log "=== [${sid}] 跳过（${MODE} 模式下已成功，--force 可重跑） ==="; continue; fi
+         check_bot
+@@ -60,7 +64,7 @@
+         if [ "${SMOKE}" = "1" ]; then
+             ${RUN} python3 tools/arena2.py ab --a "${A}" --tag "${g}" --layout "${layout}" --matches 1 --rounds 1 --jobs 2 --no-cache --max-minutes 0.4 >>"${SUMMARY}" 2>&1
+         else
+-            ${RUN} python3 tools/arena2.py ab --a "${A}" --tag "${g}" --layout "${layout}" --matches 100000 --jobs "${JOBS}" --max-minutes "${PER_LAYOUT}" >>"${SUMMARY}" 2>&1
++            ${RUN} python3 tools/arena2.py ab --a "${A}" --tag "${g}" --layout "${layout}" --matches 100000 --jobs "${JOBS}" --max-minutes "${G_MIN}" >>"${SUMMARY}" 2>&1
+         fi
+         rc=$?
+         [ "${rc}" = "0" ] && echo "${sid}	${MODE}	success	$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "${STATUS_FILE}" || echo "${sid}	${MODE}	fail	$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "${STATUS_FILE}"
+diff -ur pa/tools/arena_suite_report.py pb/tools/arena_suite_report.py
+--- pa/tools/arena_suite_report.py	2026-10-04 04:55:54
++++ pb/tools/arena_suite_report.py	2026-10-04 04:55:54
+@@ -15,6 +15,9 @@
+     ("D3", "庄家不触发 S1 弃胡 vs 现行", None),
+     ("C1", "关 tenpai_peng_gang_relax vs 现行", None),
+     ("C2", "杠门槛更严(gang_strict) vs 现行", None),
++    ("E1", "S1 放宽：墙尾门槛 8->4 vs 现行", None),
++    ("E2", "S1 放宽：允许差一步转爆头的弃胡 vs 现行", None),
++    ("E3", "S1 放宽：按期望值(p̂>p*+δ)决定弃胡 vs 现行", None),
+ )
+ 
+ 
+@@ -50,6 +53,11 @@
+                 r["A_庄"]["score"], r["B_庄"]["score"], r["A_庄"]["win"], r["B_庄"]["win"], r["A_庄"]["fan"], r["B_庄"]["fan"],
+                 d["non_dealer"][0], d["non_dealer"][0] - d["non_dealer"][2], d["non_dealer"][0] + d["non_dealer"][2],
+                 r["A_闲"]["score"], r["B_闲"]["score"], r["A_闲"]["win"], r["B_闲"]["win"], r["A_闲"]["fan"], r["B_闲"]["fan"]))
++            if tag.startswith("E") and d.get("s1"):
++                a, b = d["s1"]["A"], d["s1"]["B"]
++                lines.append("    S1 弃胡：A 触发 %d 次 胡率 %.0f%% 净 %+.1f/次 | B 触发 %d 次 胡率 %.0f%% 净 %+.1f/次" % (
++                    a["n"], 100.0 * a["won"] / max(1, a["n"]), a["net"] / max(1, a["n"]),
++                    b["n"], 100.0 * b["won"] / max(1, b["n"]), b["net"] / max(1, b["n"])))
+             if tag.startswith("C"):
+                 lines.append("    吃/碰/杠 每局：庄 A %.2f/%.2f/%.2f B %.2f/%.2f/%.2f | 闲 A %.2f/%.2f/%.2f B %.2f/%.2f/%.2f" % (
+                     *(r["A_庄"][k] for k in ("chi", "peng", "gang")), *(r["B_庄"][k] for k in ("chi", "peng", "gang")),

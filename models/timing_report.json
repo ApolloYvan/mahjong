@@ -1,0 +1,97 @@
+{
+  "action_attempts": 3411,
+  "accepted_actions": 2736,
+  "decision_actions": {
+    "pass": 1949,
+    "chi": 64,
+    "discard": 659,
+    "peng": 34,
+    "hu": 24,
+    "gang": 6
+  },
+  "rejected_409_count": 675,
+  "rejected_409_rate": 0.19788918205804748,
+  "rejected_409_reason_breakdown": {
+    "already_passed": 620,
+    "other": 43,
+    "chi_only_in_chi_window": 3,
+    "not_your_response_turn": 6,
+    "cannot_pass_in_phase_1": 1,
+    "peng_only_in_peng_window": 2
+  },
+  "fallback_count": 0,
+  "fallback_success_rate": 0,
+  "final_outcome_breakdown": {
+    "success": 2712,
+    "hu": 24,
+    "conflict_409": 675
+  },
+  "own_discard_timeouts": 3,
+  "own_response_timeouts": 494,
+  "all_player_discard_timeouts": 18,
+  "all_player_response_timeouts": 5283,
+  "own_server_timeouts_by_kind": {
+    "response": 494,
+    "discard": 3
+  },
+  "all_player_server_timeouts_by_kind": {
+    "response": 5283,
+    "discard": 18
+  },
+  "my_seat_by_game": {
+    "a_d2d5c599a042_r1_b9_t0": 3,
+    "a_d2d5c599a042_r1_b4_t0": 2,
+    "a_d2d5c599a042_r1_b2_t0": 2,
+    "a_d2d5c599a042_r1_b6_t0": 2,
+    "a_d2d5c599a042_r1_b5_t0": 2,
+    "a_d2d5c599a042_r1_b1_t0": 1,
+    "a_d2d5c599a042_r1_b3_t0": 1,
+    "a_d2d5c599a042_r1_b8_t0": 3,
+    "a_d2d5c599a042_r1_b7_t0": 3,
+    "a_d2d5c599a042_r1_b0_t0": 3
+  },
+  "client_timing": {
+    "prepare_ms": {
+      "p50": 0.023,
+      "p95": 55.543,
+      "p99": 105.992,
+      "max": 310.606
+    },
+    "action_request_ms": {
+      "p50": 4.397,
+      "p95": 10.037,
+      "p99": 16.373,
+      "max": 42.351
+    }
+  },
+  "state_timing": {
+    "requests": 10823,
+    "elapsed_ms": {
+      "p50": 565.588,
+      "p95": 3006.647,
+      "p99": 4624.907,
+      "max": 7528.774
+    },
+    "gap_count": 0,
+    "trigger_counts": {
+      "recovery": 695,
+      "notify": 6620,
+      "watchdog": 3508
+    },
+    "notify_triggered_requests": 6620,
+    "watchdog_triggered_requests": 3508,
+    "recovery_triggered_requests": 695,
+    "notify_utilization": 0.6116603529520466,
+    "legacy_requests": 0,
+    "legacy_pending": 0,
+    "legacy_gaps": 0,
+    "legacy_request_p50_ms": 0,
+    "legacy_request_p95_ms": 0
+  },
+  "notify_timing": {
+    "notifications": 23215,
+    "seq_notifications": 23215,
+    "notify_to_state_matches": 0
+  },
+  "game_count": 10
+}

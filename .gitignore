@@ -1,0 +1,42 @@
+# 数据边界排除清单（见 data/README.md 完整说明）
+#
+# 本仓库当前尚未初始化 .git（见 docs/refactor/BASELINE.md 决策 #1）。
+# 本文件预先写好，供用户未来执行 `git init` 时立即生效，避免遗漏。
+
+data/archive/
+data/index/
+logs/
+portal_events/
+portal_cookie.txt
+*.sqlite
+*.sqlite3
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# macOS
+.DS_Store
+.mj_token
+.mj_token_global
+.mj_stop
+
+# 分析脚本增量缓存
+tools/.cache/
+review_pack/
+release/
+
+# 上传 GitHub 时排除的大文件/本地产物（2026-10-05）
+data/analysis/
+data/replay.jsonl
+models/events/
+models/replays/
+tools/models/
+release/
+reports/*.json
+reports/*.tsv
+reports/cloud/
+.claude/settings.local.json
+portal_cookie.txt
+*.out

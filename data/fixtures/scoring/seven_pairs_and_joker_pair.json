@@ -1,0 +1,18 @@
+{
+  "provenance": "synthetic_test_fixture",
+  "note": "本 fixture 为合成测试数据，改写自仓库既有单测（tests/test_rules.py 的七对子/豪华七对与四张白板用例），不是真实服务端记录。用于文档化七对子/豪华七对规则的输入输出契约，便于未来评测器（阶段3）复用作规则构造例，不需要重新阅读测试源码。",
+  "rule_reference": "mj/rules.py:seven_pairs；平台规则：七对子允许用财神（白板）替代成对，豪华七对（四张同种牌）是七对子的加成变体。",
+  "cases": [
+    {
+      "description": "标准七对子：7 组不同数牌对子，无财神",
+      "hand13_plus_draw": ["1w", "1w", "2w", "2w", "3w", "3w", "4w", "4w", "5w", "5w", "6w", "6w", "7w", "7w"],
+      "expected_seven_pairs_return": 1
+    },
+    {
+      "description": "四张白板（财神）替代其中一对：仍判定为七对子",
+      "hand13_plus_draw": ["1w", "1w", "2w", "2w", "3w", "3w", "4w", "4w", "5w", "5w", "6w", "6w", "白", "白"],
+      "expected_seven_pairs_return": 1,
+      "note": "四张白板在这里只用了 2 张构成一对；豪华七对（四张同种非财神牌）是另一种加成，见 mj/rules.py 的 BRANCH_FAN 常量与 test_evaluate_chain_and_four_jokers。"
+    }
+  ]
+}

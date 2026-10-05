@@ -1,0 +1,20 @@
+{
+ "rule_fitted_discard_joker_enabled": 1,
+ "fj_uke": 100,
+ "fj_uke3": 50,
+ "fj_pair_far": 160,
+ "fj_pair_near": -5,
+ "fj_hon_iso": 214,
+ "fj_hon_pair": 46,
+ "fj_hon_trip": 73,
+ "fj_term": 88,
+ "fj_e28": 35,
+ "fj_isolated": -71,
+ "fj_seen": 57,
+ "fj_pair_route": -25,
+ "fj_bt_after": 1665,
+ "fj_bt_dist": -166,
+ "fj_plan_gain": -40,
+ "fj_mq_bt": 104,
+ "fj_disc_joker": -143
+}

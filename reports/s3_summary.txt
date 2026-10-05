@@ -1,0 +1,213 @@
+S3 批处理（smoke）开始：Sat Oct  3 16:19:57 UTC 2026
+=== [16:19:57] 开始：bench（1 分钟吞吐实测）（smoke） ===
+=== search_s3 collect（1s） ===
+新增状态 200；累计 {'menqing': 60, 'joker': 100, 'other': 40}；配额 {'joker': 100, 'menqing': 60, 'other': 40}；文件 /Users/yuanye/coding_workspace/mahjong/tools/.cache/search_smoke/states.jsonl
+=== search_s3 bench（2 进程，5s，完成 83 次推演） ===
+单次推演（我方=生产，对手=slim，打到终局）：均值 0.06s p50 0.04s p90 0.15s p99 0.46s；整体吞吐 16.45 次/秒（2 进程）
+每 1000 个状态所需（核·小时 / 在 N vCPU 上的墙钟小时；--cloud-speed=1.00 表示云上单核速度相对本机）：
+配置(K,n_sel,n_test)            推演/状态       核·小时   64 vCPU  128 vCPU  256 vCPU
+K=4 n_sel=16 n_test=48          160        2.9     0.05h     0.02h     0.01h
+K=5 n_sel=32 n_test=128         416        7.5     0.12h     0.06h     0.03h
+K=5 n_sel=64 n_test=256         832       15.0     0.23h     0.12h     0.06h
+（另有每状态的生产候选/特征提取开销约 10~100ms，相对推演可忽略；估算按本次测得的均值推演耗时线性外推）
+=== [bench（1 分钟吞吐实测）] 成功，耗时 8s ===
+=== [16:20:05] 开始：单元测试（smoke） ===
+................................................................................................................................................
+----------------------------------------------------------------------
+Ran 144 tests in 22.928s
+
+OK
+=== [单元测试] 成功，耗时 26s ===
+
+跑完：Sat Oct  3 16:20:31 UTC 2026；汇总 reports/s3_summary.txt；模型 tools/.cache/train/nn_resid_smoke.json；搜索结果 /Users/yuanye/coding_workspace/mahjong/tools/.cache/search_smoke/results.jsonl；arena 明细 reports/arena2_ab_*.json
+S3 批处理（smoke）开始：Sat Oct  3 16:20:34 UTC 2026
+=== [16:20:34] 开始：diag_shift（训练/实战分布偏差）（smoke） ===
+=== diag_shift（网络 vs 生产 一致率；nn_policy.json；7s） ===
+头        分层       | 数据集快照              | arena 快照           | 差(arena-数据集)
+出牌       全部       | 0.650 (n=20  )     | 0.600 (n=20  )     | -5.0pp
+出牌       ctx置零    | 0.650 (n=20  )     | 0.600 (n=20  )     | -5.0pp
+出牌       无财神      | 0.650 (n=20  )     | 0.545 (n=11  )     | -10.5pp
+响应       全部       | 0.900 (n=20  )     | 1.000 (n=20  )     | +10.0pp
+响应       ctx置零    | 0.900 (n=20  )     | 1.000 (n=20  )     | +10.0pp
+响应       无财神      | 0.900 (n=20  )     | 1.000 (n=15  )     | +10.0pp
+响应       非过       | 0.500 (n=2   )     | 1.000 (n=1   )     | +50.0pp
+胡飘弃胡     全部       | 0.700 (n=20  )     | 0.800 (n=20  )     | +10.0pp
+胡飘弃胡     ctx置零    | 0.700 (n=20  )     | 0.800 (n=20  )     | +10.0pp
+胡飘弃胡     有财神      | 0.667 (n=18  )     | 0.750 (n=16  )     | +8.3pp
+胡飘弃胡     无财神      | 1.000 (n=2   )     | 1.000 (n=4   )     | +0.0pp
+  出牌 数据集 不一致的生产动作类别(下标:次数)：{'0': 1, '9': 1, '7': 1, '4': 1, '15': 1, '22': 1}
+  出牌 arena 不一致的生产动作类别(下标:次数)：{'16': 1, '25': 1, '13': 1, '30': 1, '24': 1, '8': 1}
+  响应 数据集 不一致的生产动作类别(下标:次数)：{'36': 1, '41': 1}
+  胡飘弃胡 数据集 不一致的生产动作类别(下标:次数)：{'2': 6}
+  胡飘弃胡 arena 不一致的生产动作类别(下标:次数)：{'0': 3, '1': 1}
+最大差距 10.0pp：**>5pp，编码/分布有偏差，需要查**
+=== [diag_shift（训练/实战分布偏差）] 成功，耗时 9s ===
+=== [16:20:43] 开始：collect 状态(冒烟 24 个)（smoke） ===
+=== search_s3 collect（0s） ===
+新增状态 0；累计 {'menqing': 60, 'joker': 100, 'other': 40}；配额 {'joker': 12, 'menqing': 7, 'other': 5}；文件 /Users/yuanye/coding_workspace/mahjong/tools/.cache/search_smoke/states.jsonl
+=== [collect 状态(冒烟 24 个)] 成功，耗时 1s ===
+=== [16:20:44] 开始：search 冒烟（2 进程）（smoke） ===
+=== search_s3 run（8s；K=4 n_sel=6 n_test=16 z=2.0） ===
+状态 8（已有 0，本次待算 8）
+本次完成 8：改进 0（0.0%）；按类别 {'joker': '0/3', 'menqing': '0/1', 'other': '0/4'}；跳过 无；出错 0
+单状态耗时（单核）p50 1.3s p90 2.8s；输出 /Users/yuanye/coding_workspace/mahjong/tools/.cache/search_smoke/results.jsonl
+=== [search 冒烟（2 进程）] 成功，耗时 9s ===
+
+跑完：Sat Oct  3 16:20:53 UTC 2026；汇总 reports/s3_summary.txt；模型 tools/.cache/train/nn_resid_smoke.json；搜索结果 /Users/yuanye/coding_workspace/mahjong/tools/.cache/search_smoke/results.jsonl；arena 明细 reports/arena2_ab_*.json
+S3 批处理（smoke）开始：Sat Oct  3 16:20:58 UTC 2026
+=== [16:20:58] 开始：build_resid（高手标签）（smoke） ===
+=== build_resid（冒烟，18s；分片 /Users/yuanye/coding_workspace/mahjong/tools/.cache/train/resid_parts_smoke） ===
+文件 16：新处理 16，已有跳过 0
+决策 1010：高手选择==生产选择 80.3%；不在生产前 5 名里 1.0%（这部分丢弃）；写入 1000；出错 0
+=== [build_resid（高手标签）] 成功，耗时 23s ===
+=== [16:21:21] 开始：train_resid 冒烟（smoke） ===
+/Users/yuanye/Library/Python/3.9/lib/python/site-packages/torch/_subclasses/functional_tensor.py:279: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:81.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+=== train_resid ===
+数据：搜索源 0 条 + 高手源 1000 条；训练 719 / 验证 281；起点检查通过（未训练 == 生产）
+验证基线（恒选生产）：标签一致率 0.804，损失 0.7537
+epoch 1 验证损失 0.7533 一致率 0.804 改动率 0.0%
+epoch 2 验证损失 0.7519 一致率 0.804 改动率 0.0%
+epoch 3 验证损失 0.7488 一致率 0.804 改动率 0.0%
+epoch 4 验证损失 0.7432 一致率 0.804 改动率 0.0%
+epoch 5 验证损失 0.7343 一致率 0.804 改动率 0.0%
+epoch 6 验证损失 0.7216 一致率 0.804 改动率 0.0%
+最优（早停，验证损失 0.7216）：标签一致率 模型 0.804 vs 基线 0.804；改动率 0.0%
+已导出 /Users/yuanye/coding_workspace/mahjong/tools/.cache/train/nn_resid_smoke.json（0.03 MB）
+=== [train_resid 冒烟] 成功，耗时 3s ===
+=== [16:21:24] 开始：verify_resid 性能核（smoke） ===
+/Users/yuanye/Library/Python/3.9/lib/python/site-packages/torch/_subclasses/functional_tensor.py:279: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:81.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+=== verify_resid [perf]（nn_resid_smoke.json，8s） ===
+精度：600 个候选向量，纯 Python g(x) vs torch(float64) 最大绝对差 3.331e-16（验收线 1e-5）通过；候选首位==生产选择：违例 0
+耗时（300 个真实决策，K=5）：特征提取 p50 1.8ms p99 33.9ms；前向 p50 0.57ms p99 0.65ms（线 50ms：通过）；端到端 p50 2.4ms p99 34.5ms（线 150ms：通过）
+=== [verify_resid 性能核] 成功，耗时 10s ===
+=== [16:21:34] 开始：verify_resid 能效核(taskpolicy -c background)（smoke） ===
+/Users/yuanye/Library/Python/3.9/lib/python/site-packages/torch/_subclasses/functional_tensor.py:279: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:81.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+=== verify_resid [eff]（nn_resid_smoke.json，29s） ===
+精度：600 个候选向量，纯 Python g(x) vs torch(float64) 最大绝对差 3.331e-16（验收线 1e-5）通过；候选首位==生产选择：违例 0
+耗时（300 个真实决策，K=5）：特征提取 p50 7.4ms p99 136.1ms；前向 p50 2.04ms p99 5.30ms（线 50ms：通过）；端到端 p50 9.7ms p99 139.1ms（线 150ms：通过）
+=== [verify_resid 能效核(taskpolicy -c background)] 成功，耗时 44s ===
+=== [16:22:18] 开始：arena2 ab 1v3 A=生产+修正(冒烟) B=当前（smoke） ===
+=== A/B 配对检验（A=tools/overlays/resid.json B=<当前配置> layout=1v3，完整明细见 /Users/yuanye/coding_workspace/mahjong/reports/arena2_ab_1791044541.json） ===
+种子数 1（本次新跑 1，复用缓存 0），新跑耗时 1.5s（1.48s/种子，--jobs 2）
+配对差 A−B（每局场均分，按种子聚类）：均值 +0.000，95%CI [+0.000, +0.000]（半宽 0.000）—— 置信区间包含 0
+第一名率：A 0.250  B 0.250  差 +0.000
+  [A] 胜率 0.250（1/4 局），平均番数 1.00
+       占胡比例：baotou 0.0%(n=0)  qidui 0.0%(n=0)  piao_chain 0.0%(n=0)  gang_kai 0.0%(n=0)  four_white 0.0%(n=0)
+  [B] 胜率 0.250（3/12 局），平均番数 1.00
+       占胡比例：baotou 0.0%(n=0)  qidui 0.0%(n=0)  piao_chain 0.0%(n=0)  gang_kai 0.0%(n=0)  four_white 0.0%(n=0)
+非法动作（按类型）：无
+生产+修正出牌模型：评估 25 次，改动生产选择 0（0.0%），回落 0；耗时 p50 1.8ms p99 9.9ms
+
+非法动作根因（按 动作类型/拒绝原因 分类，完整快照见 reports/arena2_illegal.tsv，验收线 0 条）：
+  （本次 0 条）
+=== [arena2 ab 1v3 A=生产+修正(冒烟) B=当前] 成功，耗时 3s ===
+
+跑完：Sat Oct  3 16:22:21 UTC 2026；汇总 reports/s3_summary.txt；模型 tools/.cache/train/nn_resid_smoke.json；搜索结果 /Users/yuanye/coding_workspace/mahjong/tools/.cache/search_smoke/results.jsonl；arena 明细 reports/arena2_ab_*.json
+S3 批处理（smoke）开始：Sun Oct  4 02:51:38 UTC 2026
+=== [02:51:38] 开始：collect 状态(冒烟 24 个)（smoke） ===
+=== search_s3 collect（0s） ===
+新增状态 24；累计 {'other': 5, 'joker': 12, 'menqing': 7}；配额 {'joker': 12, 'menqing': 7, 'other': 5}；文件 /Users/yuanye/coding_workspace/mahjong/tools/.cache/search_smoke/states.jsonl
+=== [collect 状态(冒烟 24 个)] 成功，耗时 1s ===
+=== [02:51:39] 开始：search 冒烟（4 进程）（smoke） ===
+=== search_s3 run（12s；K=4 n_sel=4 n_test=8 z=2.0） ===
+状态 24（已有 0，本次待算 24）
+本次完成 24：改进 0（0.0%）；按类别 {'joker': '0/12', 'menqing': '0/7', 'other': '0/5'}；跳过 无；出错 0
+单状态耗时（单核）p50 1.3s p90 3.5s；输出 /Users/yuanye/coding_workspace/mahjong/tools/.cache/search_smoke/results.jsonl
+=== [search 冒烟（4 进程）] 成功，耗时 13s ===
+=== [02:51:52] 开始：train_resid 冒烟（smoke） ===
+/Users/yuanye/Library/Python/3.9/lib/python/site-packages/torch/_subclasses/functional_tensor.py:279: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:81.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+=== train_resid（目标 = 相对生产的优势，分/局） ===
+搜索状态：训练 11 / 验证 13；起点检查通过（未训练 == 生产，改动 0 个）
+验证集非 P 候选的实测优势：均值 -0.574 标准差 3.880；每状态最优候选的实测优势均值 +2.847（有选择偏差，仅参照）
+epoch 1 验证加权MSE 8.1893
+tau=0.00（在验证集一半上调，调时增益 +0.030 分/局/状态）
+报告半集（6 个状态，未参与调 tau）：策略增益估计 -0.507 分/局/状态，95%CI [-2.984, +1.970]；改动率 100.0%；改动的状态里平均实测优势 -0.51
+参照：每个状态都选实测最优候选的上界 +2.810（有选择偏差）；不改动 0.000
+已导出 /Users/yuanye/coding_workspace/mahjong/tools/.cache/train/nn_resid_smoke.json（0.03 MB）
+=== [train_resid 冒烟] 成功，耗时 3s ===
+
+跑完：Sun Oct  4 02:51:55 UTC 2026；汇总 reports/s3_summary.txt；模型 tools/.cache/train/nn_resid_smoke.json；搜索结果 /Users/yuanye/coding_workspace/mahjong/tools/.cache/search_smoke/results.jsonl；arena 明细 reports/arena2_ab_*.json
+S3 批处理（smoke）开始：Sun Oct  4 02:52:00 UTC 2026
+=== [02:52:00] 开始：bench（1 分钟吞吐实测）（smoke） ===
+=== search_s3 collect（1s） ===
+新增状态 176；累计 {'other': 40, 'joker': 100, 'menqing': 60}；配额 {'joker': 100, 'menqing': 60, 'other': 40}；文件 /Users/yuanye/coding_workspace/mahjong/tools/.cache/search_smoke/states.jsonl
+=== search_s3 bench（2 进程，5s，完成 96 次推演） ===
+单次推演（我方=生产，对手=slim，打到终局）：均值 0.06s p50 0.04s p90 0.13s p99 0.36s；整体吞吐 19.14 次/秒（2 进程）
+每 1000 个状态所需（核·小时 / 在 N vCPU 上的墙钟小时；--cloud-speed=1.00 表示云上单核速度相对本机）：
+配置(K,n_sel,n_test)            推演/状态       核·小时   64 vCPU  128 vCPU  256 vCPU
+K=4 n_sel=16 n_test=48          256        4.0     0.06h     0.03h     0.02h
+K=5 n_sel=32 n_test=128         800       12.3     0.19h     0.10h     0.05h
+K=5 n_sel=64 n_test=256        1600       24.7     0.39h     0.19h     0.10h
+（另有每状态的生产候选/特征提取开销约 10~100ms，相对推演可忽略；估算按本次测得的均值推演耗时线性外推）
+=== [bench（1 分钟吞吐实测）] 成功，耗时 8s ===
+=== [02:52:08] 开始：verify_resid 性能核（smoke） ===
+/Users/yuanye/Library/Python/3.9/lib/python/site-packages/torch/_subclasses/functional_tensor.py:279: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:81.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+=== verify_resid [perf]（nn_resid_smoke.json，8s） ===
+精度：598 个候选向量，纯 Python g(x) vs torch(float64) 最大绝对差 7.994e-15（验收线 1e-5）通过；候选首位==生产选择：违例 0
+耗时（299 个真实决策，K=5）：特征提取 p50 1.7ms p99 35.2ms；前向 p50 0.40ms p99 0.47ms（线 50ms：通过）；端到端 p50 2.1ms p99 35.6ms（线 150ms：通过）
+=== [verify_resid 性能核] 成功，耗时 11s ===
+=== [02:52:19] 开始：verify_resid 能效核(taskpolicy -c background)（smoke） ===
+/Users/yuanye/Library/Python/3.9/lib/python/site-packages/torch/_subclasses/functional_tensor.py:279: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:81.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+=== verify_resid [eff]（nn_resid_smoke.json，31s） ===
+精度：598 个候选向量，纯 Python g(x) vs torch(float64) 最大绝对差 7.994e-15（验收线 1e-5）通过；候选首位==生产选择：违例 0
+耗时（299 个真实决策，K=5）：特征提取 p50 7.7ms p99 223.7ms；前向 p50 1.99ms p99 3.17ms（线 50ms：通过）；端到端 p50 9.7ms p99 225.9ms（线 150ms：**未通过**）
+=== [verify_resid 能效核(taskpolicy -c background)] 失败（退出码 1，看上面输出），耗时 52s ===
+=== [02:53:11] 开始：arena2 ab 1v3 A=生产+修正(冒烟) B=当前（smoke） ===
+=== A/B 配对检验（A=tools/overlays/resid.json B=<当前配置> layout=1v3，完整明细见 /Users/yuanye/coding_workspace/mahjong/reports/arena2_ab_1791082394.json） ===
+种子数 1（本次新跑 1，复用缓存 0），新跑耗时 2.0s（1.96s/种子，--jobs 2）
+配对差 A−B（每局场均分，按种子聚类）：均值 +0.000，95%CI [+0.000, +0.000]（半宽 0.000）—— 置信区间包含 0
+第一名率：A 0.250  B 0.250  差 +0.000
+  [A] 胜率 0.250（1/4 局），平均番数 1.00
+       占胡比例：baotou 0.0%(n=0)  qidui 0.0%(n=0)  piao_chain 0.0%(n=0)  gang_kai 0.0%(n=0)  four_white 0.0%(n=0)
+  [B] 胜率 0.250（3/12 局），平均番数 1.00
+       占胡比例：baotou 0.0%(n=0)  qidui 0.0%(n=0)  piao_chain 0.0%(n=0)  gang_kai 0.0%(n=0)  four_white 0.0%(n=0)
+非法动作（按类型）：无
+按角色（每局场均）：
+  庄  得分 A -8.00 B -8.00 | 胜率 A 0.000 B 0.000 | 均番 A 0.00 B 0.00 | 吃/碰/杠 A 1.00/3.00/0.00 B 0.00/1.33/0.00（局数 A 1 B 3）
+  闲  得分 A +2.67 B +2.67 | 胜率 A 0.333 B 0.333 | 均番 A 1.00 B 1.00 | 吃/碰/杠 A 0.67/1.00/0.00 B 0.22/1.44/0.00（局数 A 3 B 9）
+  庄 A−B：+0.000 95%CI [+0.000, +0.000]
+  闲 A−B：+0.000 95%CI [+0.000, +0.000]
+生产+修正出牌模型：评估 43 次，改动生产选择 37（86.0%），回落 0；耗时 p50 0.8ms p99 9.3ms
+
+非法动作根因（按 动作类型/拒绝原因 分类，完整快照见 reports/arena2_illegal.tsv，验收线 0 条）：
+  （本次 0 条）
+=== [arena2 ab 1v3 A=生产+修正(冒烟) B=当前] 成功，耗时 3s ===
+
+跑完：Sun Oct  4 02:53:14 UTC 2026；汇总 reports/s3_summary.txt；模型 tools/.cache/train/nn_resid_smoke.json；搜索结果 /Users/yuanye/coding_workspace/mahjong/tools/.cache/search_smoke/results.jsonl；arena 明细 reports/arena2_ab_*.json
+S3 批处理（smoke）开始：Sun Oct  4 02:53:43 UTC 2026
+=== [02:53:43] 开始：verify_resid 性能核（smoke） ===
+/Users/yuanye/Library/Python/3.9/lib/python/site-packages/torch/_subclasses/functional_tensor.py:279: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:81.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+=== verify_resid [perf]（nn_resid_smoke.json，8s） ===
+精度：597 个候选向量，纯 Python g(x) vs torch(float64) 最大绝对差 1.776e-15（验收线 1e-5）通过；候选首位==生产选择：违例 0
+耗时（299 个真实决策，K=5）：特征提取 p50 1.6ms p99 34.1ms；前向 p50 0.40ms p99 0.48ms（线 50ms：通过）；端到端 p50 2.0ms p99 34.5ms（线 150ms：通过）
+=== [verify_resid 性能核] 成功，耗时 11s ===
+=== [02:53:54] 开始：verify_resid 能效核(taskpolicy -c background)（smoke） ===
+/Users/yuanye/Library/Python/3.9/lib/python/site-packages/torch/_subclasses/functional_tensor.py:279: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:81.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+=== verify_resid [eff]（nn_resid_smoke.json，30s） ===
+精度：591 个候选向量，纯 Python g(x) vs torch(float64) 最大绝对差 1.776e-15（验收线 1e-5）通过；候选首位==生产选择：违例 0
+耗时（299 个真实决策，K=5）：特征提取 p50 8.0ms p99 115.0ms；前向 p50 1.95ms p99 5.22ms（线 50ms：通过）；端到端 p50 10.5ms p99 116.3ms（线 150ms：通过）
+=== [verify_resid 能效核(taskpolicy -c background)] 成功，耗时 54s ===
+
+跑完：Sun Oct  4 02:54:48 UTC 2026；汇总 reports/s3_summary.txt；模型 tools/.cache/train/nn_resid_smoke.json；搜索结果 /Users/yuanye/coding_workspace/mahjong/tools/.cache/search_smoke/results.jsonl；arena 明细 reports/arena2_ab_*.json
+S3 批处理（full）开始：2026年10月 4日 星期日 20时57分07秒 CST，步骤： collect search，MJ_JOBS=6，系统 Darwin，状态数 3000，搜索上限 30 分钟
+预计耗时（本机 6 核量级）：bench 2 分钟；tests 1 分钟；diag ~20 分钟；collect 1-3 分钟；search 30 分钟（上限，可续跑）；masters 30-60 分钟；train ~5 分钟；verify ~3 分钟；arena 60 分钟
+=== [20:57:07] 开始：collect 状态（3000 个）（full） ===
+=== search_s3 collect（10s） ===
+新增状态 2960；累计 {'menqing': 900, 'joker': 1500, 'other': 600}；配额 {'joker': 1500, 'menqing': 900, 'other': 600}；文件 /Users/yuanye/coding_workspace/mahjong/tools/.cache/search/states.jsonl
+=== [collect 状态（3000 个）] 成功，耗时 12s ===
+=== [20:57:19] 开始：search（K=5 n_sel=32 n_test=128，上限 30 分钟）（full） ===
+=== search_s3 run（1851s；K=5 n_sel=32 n_test=128 z=2.0） ===
+状态 3000（已有 16，本次待算 2984）；到 --max-minutes 提前停，重跑续跑
+本次完成 63：改进 3（4.8%）；按类别 {'joker': '1/26', 'menqing': '1/20', 'other': '1/17'}；跳过 无；出错 0
+单状态耗时（单核）p50 105.7s p90 345.1s；输出 /Users/yuanye/coding_workspace/mahjong/tools/.cache/search/results.jsonl
+=== [search（K=5 n_sel=32 n_test=128，上限 30 分钟）] 成功，耗时 1853s ===
+
+跑完：2026年10月 4日 星期日 21时28分12秒 CST；汇总 reports/s3_summary.txt；模型 models/nn_resid.json；搜索结果 tools/.cache/search/results.jsonl；arena 明细 reports/arena2_ab_*.json

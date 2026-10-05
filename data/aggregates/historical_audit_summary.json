@@ -1,0 +1,443 @@
+{
+  "provenance": "derived_summary",
+  "source_document": "/Users/yuanye/Documents/ChatGPT/麻将大赛/review/audit_data.json",
+  "source_produced_by": "独立技术评审报告（2026-09-20 评审）扫描历史决策日志（约 534.5 MiB，2,249,105 行）产出的聚合统计结果",
+  "note": "本文件是对 audit_data.json 顶层字段程序化提取生成（脚本读取原始 JSON 并直接转录字段，不是人工誊写），不是本次会话对原始日志重新计算的结果——本次会话的工作区不含 logs/、models/、portal_events/ 目录，无法重新验证这些数字。使用前应视为『历史一次性审计快照』，不代表当前策略版本的实时表现。",
+  "data_quality": {
+    "total_lines_scanned": 2249105,
+    "malformed_lines": 16361,
+    "malformed_rate": 0.00727,
+    "total_bytes": 560497196,
+    "kind_distribution": {
+      "decision": 210175,
+      "result": 2537,
+      "round_end": 604,
+      "state": 927098,
+      "notify": 1005755,
+      "error": 6993,
+      "pass_window": 75243,
+      "hu_detail": 656,
+      "piao_attempt": 3,
+      "action_rejected": 3520,
+      "fallback_sent": 160
+    },
+    "decision_field_completeness": {
+      "total": 210175,
+      "has_discards": 0,
+      "has_chain_count": 0,
+      "has_policy_version": 0,
+      "has_config_hash": 0,
+      "note": "旧日志（阶段2重构前）缺少 decision_id/policy_version/config_hash/顶层 discards 字段，这是独立技术评审报告指出的观测缺口，阶段2已在 mj/logging.py 补齐这些字段用于新产生的日志，但历史日志本身无法回填。"
+    },
+    "chain_field": {
+      "god_chain_count_positive": 128,
+      "top_level_chain_count_positive": 0,
+      "note": "这是『chain_count 字段错读』bug 的直接证据：128 条记录 god.chain_count>0，但没有任何一条同时在顶层 chain_count 留下非零值，说明历史决策代码从未真正读到过这些非零链次数。已在阶段1修复（mj/state.py:canonical_chain_count）。"
+    }
+  },
+  "hu_detail_local_estimate_summary": {
+    "raw_count": 656,
+    "unique_count": 656,
+    "conflicts_within_local_data": 0,
+    "fan_distribution": {
+      "1": 577,
+      "2": 79
+    },
+    "detail_tag_distribution": {
+      "平胡": 644,
+      "七对子": 12,
+      "爆头": 63,
+      "杠开": 4
+    },
+    "note": "这是本地 hu_detail 记录的分布，是 local_estimate，不是服务端结算真相。f2+占比约 12.04%，与独立技术评审报告『不同于简报引用的其他时期口径』的说法一致——即历史上不同时期的类似统计口径并不完全可比，不应直接拿这个数字当作『当前策略』的表现。"
+  },
+  "game_id_dedup": {
+    "results_raw": 2537,
+    "results_unique_game_id": 1078,
+    "note": "2537 条终局记录只有 1078 个唯一 game_id，说明存在重复统计风险（同一局多次记录），任何基于 result kind 的汇总必须先按 game_id 去重，否则会系统性放大样本量。"
+  },
+  "known_fan_mismatches": [
+    {
+      "game_id": "a_2e31e10fe10a_r1_b7_t0",
+      "round_no": 7,
+      "server_fan": 1,
+      "server_detail": [
+        "平胡"
+      ],
+      "local_fan": null,
+      "category": "server_only（本地缺失 hu_detail 记录）"
+    },
+    {
+      "game_id": "a_5a06a8f48d67_r1_b4_t0",
+      "round_no": 5,
+      "server_fan": 4,
+      "server_detail": [
+        "平胡",
+        "财飘",
+        "爆头"
+      ],
+      "local_fan": 2,
+      "category": "discrepancy（本地估算与服务端结算不一致）"
+    },
+    {
+      "game_id": "a_ae8e2507e0ec_r1_b1_t0",
+      "round_no": 2,
+      "server_fan": 1,
+      "server_detail": [
+        "平胡"
+      ],
+      "local_fan": null,
+      "category": "server_only（本地缺失 hu_detail 记录）"
+    }
+  ],
+  "room_level_net_scores": {
+    "note": "以下为 audit_data.json.auto_rooms 的完整程序化提取：57 个自由匹配房间（每房间通常 10 局/80 手，个别房间未满）的净分、局数、手数。这是历史投入的累计结果，不是冻结候选的胜率估计（独立技术评审报告已指出：官网自由匹配按近期战绩相近选择对手，与表现相关，不能直接外推正式赛晋级概率）。",
+    "total_rooms": 57,
+    "rooms": [
+      {
+        "room": "a_a84bb9438196",
+        "score": -300,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_35e5e66d1cf7",
+        "score": -159,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_d6d860e4404d",
+        "score": -178,
+        "rounds": 72,
+        "games": 9
+      },
+      {
+        "room": "a_3c49d8e1caa7",
+        "score": -138,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_d5fc6d693eab",
+        "score": -26,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_8597fc6c29a3",
+        "score": -75,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_d9bd8a0e8c8c",
+        "score": -147,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_e2d63304bd5b",
+        "score": -104,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_cce60271e8b0",
+        "score": -111,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_203f1ca23027",
+        "score": 90,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_c691d2c6e4c2",
+        "score": -143,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_3346567c129b",
+        "score": -174,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_53ab212e7b59",
+        "score": -40,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_35a656012245",
+        "score": 65,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_c85b1e01edb5",
+        "score": -72,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_ae288f90cf54",
+        "score": -175,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_6c719ff415cb",
+        "score": 13,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_ec2ec8121359",
+        "score": -136,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_aa7cd135f12f",
+        "score": 1,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_4a30a5815e2a",
+        "score": 117,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_250cf7e20f27",
+        "score": 123,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_ed4eb6cd890c",
+        "score": -148,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_85e87d4858a1",
+        "score": 315,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_897d70c6ac88",
+        "score": -119,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_a4c5c560e1c5",
+        "score": -156,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_43a7131f3711",
+        "score": -111,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_93a2a13f7b68",
+        "score": -31,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_62151ca73a21",
+        "score": -23,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_6960be96f504",
+        "score": 20,
+        "rounds": 72,
+        "games": 9
+      },
+      {
+        "room": "a_16294c1e235e",
+        "score": 48,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_5cdd9704390d",
+        "score": -60,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_0112065b2fb8",
+        "score": -254,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_53c1e9bdc8ed",
+        "score": -169,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_117309892fa7",
+        "score": 83,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_7aaa2a19dfed",
+        "score": -199,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_7b115c01a022",
+        "score": -69,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_aba33a0fee6d",
+        "score": -142,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_8b01db11ddb5",
+        "score": -188,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_ffa1487b5365",
+        "score": 31,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_5ccb13c006e2",
+        "score": -147,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_62bf5ac74a89",
+        "score": -59,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_100d4debaf56",
+        "score": -110,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_9d8535f0f135",
+        "score": 457,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_442453072b99",
+        "score": 23,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_fff6fd055511",
+        "score": -5,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_6c868628359f",
+        "score": -87,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_5a06a8f48d67",
+        "score": -131,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_ae8e2507e0ec",
+        "score": -273,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_2e31e10fe10a",
+        "score": -300,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_fce6b4833c1f",
+        "score": 23,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_1fe688897daf",
+        "score": -49,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_f77b676c74ff",
+        "score": 15,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_a0cccfb47f5d",
+        "score": -249,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_554fc9aeb394",
+        "score": -119,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_a379893d6fbb",
+        "score": -95,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_f6024ad2a8a2",
+        "score": -156,
+        "rounds": 80,
+        "games": 10
+      },
+      {
+        "room": "a_faf511a0bac5",
+        "score": 16,
+        "rounds": 8,
+        "games": 1
+      }
+    ],
+    "sum_of_net_scores": -3987,
+    "cross_check_note": "独立技术评审报告记载『s21—s55 可定位结果 34 个有结果的房间，净分恰为 −2286』——该数字与本表全部 57 个房间的总和（-3987）口径不同（34 房间子集 vs auto_rooms 全量），不要混用；本表是 auto_rooms 全量列表的程序化提取，不是报告里 34 房间子集的重新计算。"
+  }
+}

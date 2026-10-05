@@ -1,0 +1,18 @@
+{
+  "provenance": "derived_from_audit",
+  "source_document": "/Users/yuanye/Documents/ChatGPT/麻将大赛/review/audit_data.json",
+  "source_field_path": "portal_mismatches[0]",
+  "note": "本 fixture 取自审计聚合结果，不是原始服务端文件重放。server_only 案例：服务端记录了胡牌结算，但本地 hu_detail 完全没有对应记录（local_fan=null），对应独立技术评审报告『5 房间内另有 2 次我方服务端胡牌没有对应本地 hu_detail』的说法之一。可能原因：托管/自动胡牌路径未走到会写 hu_detail 的代码分支，或该条决策日志本身丢失。",
+  "purpose": "回归锁定 mj/reconcile.py 的 server_only 分类：本地估算缺失时不应被误判为『一致』，必须显式出现在 server_only 列表里。",
+  "case": {
+    "game_id": "a_2e31e10fe10a_r1_b7_t0",
+    "round_no": 7,
+    "server_truth": {
+      "fan": 1,
+      "detail": ["平胡"],
+      "source": "server_truth"
+    },
+    "local_estimate": null
+  },
+  "expected_assertion": "reconcile(local, server) 应把该 key 归入 server_only，不归入 discrepancies（因为没有本地估算可比较），也不归入 agreements。"
+}

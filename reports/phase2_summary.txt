@@ -1,0 +1,1188 @@
+阶段二批处理（smoke）开始：Fri Oct  2 10:37:11 UTC 2026；预计总耗时 <2 分钟（每步极小规模）
+=== [10:37:11] 开始：rules_fix_impact 冒烟（smoke） ===
+=== rules_fix_impact（明细 /Users/yuanye/coding_workspace/mahjong/reports/rules_fix_impact.tsv） ===
+文件 4，回放局数 32（回放中断 0），检查摸牌 953 次
+自摸判定新旧不同：0 次（旧能胡/新不能胡 0，旧不能胡/新能胡 0）
+爆头判定新旧不同：0 次（旧判爆头/新判不是 0，反过来 0）
+线上日志：hu 请求 7321 次，其中 conflict_409 被拒 41 次
+（409 里有多少是这个 bug 造成的：看明细里 kind=hu、旧=True 新=False 的行，按 file/round/seat 对应 logs 里同局同座位的 409 记录）
+=== [rules_fix_impact 冒烟] 成功，耗时 17s ===
+=== [10:37:28] 开始：slim-equiv 冒烟(300 局)（smoke） ===
+=== mc_check slim-equiv（明细 /Users/yuanye/coding_workspace/mahjong/reports/mc_slim_equiv.txt） ===
+对照局数 300，不一致 0（验收线 0），耗时 1.1s
+分支覆盖：{'catch_play_discard': 2682, 'discard': 17539, 'discard_joker': 723, 'gang_an': 21, 'gang_bu': 43, 'hu_chain': 7, 'hu_plain': 105, 'resp_chi': 1090, 'resp_gang': 25, 'resp_pass': 61273, 'resp_peng': 808}
+=== [slim-equiv 冒烟(300 局)] 成功，耗时 3s ===
+=== [10:37:31] 开始：slim-speed 性能核（smoke） ===
+=== mc_check slim-speed（单核，4.0s） ===
+局数 1061，单局 p50=3.27ms p90=5.83ms p99=17.52ms（目标 <=5ms，性能核；能效核用 taskpolicy -c background 再跑一次）
+=== [slim-speed 性能核] 成功，耗时 5s ===
+=== [10:37:36] 开始：slim-speed 能效核(taskpolicy -c background)（smoke） ===
+=== mc_check slim-speed（单核，4.0s） ===
+局数 273，单局 p50=11.72ms p90=24.90ms p99=90.90ms（目标 <=5ms，性能核；能效核用 taskpolicy -c background 再跑一次）
+=== [slim-speed 能效核(taskpolicy -c background)] 成功，耗时 9s ===
+
+跑完：Fri Oct  2 10:37:45 UTC 2026；汇总 reports/phase2_summary.txt，各步明细文件路径见上面对应段落（reports/ 或 tools/.cache/）。
+阶段二批处理（smoke）开始：Fri Oct  2 10:37:50 UTC 2026；预计总耗时 <2 分钟（每步极小规模）
+=== [10:37:50] 开始：arena2 seatbias 2v2 冒烟（smoke） ===
+=== A/B 配对检验（A=<当前配置> B=<当前配置> layout=2v2，完整明细见 /Users/yuanye/coding_workspace/mahjong/reports/arena2_ab_1790937476.json） ===
+种子数 2（本次新跑 2，复用缓存 0），新跑耗时 5.4s（2.72s/种子，--jobs 2）
+配对差 A−B（每局场均分，按种子聚类）：均值 +0.000，95%CI [+0.000, +0.000]（半宽 0.000）—— 置信区间包含 0
+第一名率：A 0.250  B 0.250  差 +0.000
+  [A] 胜率 0.250（48/192 局），平均番数 1.62
+       占胡比例：baotou 37.5%(n=18)  qidui 6.2%(n=3)  piao_chain 0.0%(n=0)  gang_kai 0.0%(n=0)  four_white 6.2%(n=3)
+  [B] 胜率 0.250（48/192 局），平均番数 1.62
+       占胡比例：baotou 37.5%(n=18)  qidui 6.2%(n=3)  piao_chain 0.0%(n=0)  gang_kai 0.0%(n=0)  four_white 6.2%(n=3)
+非法动作（按类型）：无
+
+非法动作根因（按 动作类型/拒绝原因 分类，完整快照见 reports/arena2_illegal.tsv，验收线 0 条）：
+  （本次 0 条）
+=== [arena2 seatbias 2v2 冒烟] 成功，耗时 6s ===
+=== [10:37:56] 开始：arena2 seatbias 1v3 冒烟（smoke） ===
+=== A/B 配对检验（A=<当前配置> B=<当前配置> layout=1v3，完整明细见 /Users/yuanye/coding_workspace/mahjong/reports/arena2_ab_1790937483.json） ===
+种子数 2（本次新跑 2，复用缓存 0），新跑耗时 5.2s（2.62s/种子，--jobs 2）
+配对差 A−B（每局场均分，按种子聚类）：均值 +0.000，95%CI [+0.000, +0.000]（半宽 0.000）—— 置信区间包含 0
+第一名率：A 0.250  B 0.250  差 +0.000
+  [A] 胜率 0.250（16/64 局），平均番数 1.62
+       占胡比例：baotou 37.5%(n=6)  qidui 6.2%(n=1)  piao_chain 0.0%(n=0)  gang_kai 0.0%(n=0)  four_white 6.2%(n=1)
+  [B] 胜率 0.250（48/192 局），平均番数 1.62
+       占胡比例：baotou 37.5%(n=18)  qidui 6.2%(n=3)  piao_chain 0.0%(n=0)  gang_kai 0.0%(n=0)  four_white 6.2%(n=3)
+非法动作（按类型）：无
+
+非法动作根因（按 动作类型/拒绝原因 分类，完整快照见 reports/arena2_illegal.tsv，验收线 0 条）：
+  （本次 0 条）
+=== [arena2 seatbias 1v3 冒烟] 成功，耗时 7s ===
+=== [10:38:03] 开始：sim_calibrate 冒烟（smoke） ===
+扫描真实日志……
+  已扫 1000 / 3478
+  已扫 2000 / 3478
+  已扫 3000 / 3478
+  已扫 3478 / 3478
+跑 arena2 自对局 2 个种子……
+
+=== arena2自对局（局数=16，胡牌数=16） ===
+  流局率 0.000 ± 0.000
+  每局chi次数 2.125 ± 0.562 (n=16)
+  每局peng次数 3.125 ± 0.994 (n=16)
+  每局gang次数 0.188 ± 0.198 (n=16)
+  累计胡牌率(庄) 第6/10/14摸: 0.062±0.119, 0.125±0.162, 0.125±0.162
+  累计胡牌率(闲) 第6/10/14摸: 0.146±0.100, 0.250±0.122, 0.292±0.129
+  番数分布 1:0.62  2:0.25  4:0.12  8:0.00  16+:0.00
+  占胡比例 baotou:0.38  qidui:0.06  piao:0.00  gang_kai:0.00  four_white:0.06
+
+=== 高手（局数=5437，胡牌数=3612） ===
+  流局率 0.003 ± 0.001
+  每局chi次数 2.340 ± 0.039 (n=5437)
+  每局peng次数 2.291 ± 0.039 (n=5437)
+  每局gang次数 0.242 ± 0.013 (n=5437)
+  累计胡牌率(庄) 第6/10/14摸: 0.120±0.011, 0.253±0.014, 0.295±0.015
+  累计胡牌率(闲) 第6/10/14摸: 0.087±0.006, 0.218±0.008, 0.261±0.009
+  番数分布 1:0.68  2:0.27  4:0.04  8:0.00  16+:0.00
+  占胡比例 baotou:0.31  qidui:0.02  piao:0.01  gang_kai:0.02  four_white:0.00
+
+=== 我们(当前)（局数=7443，胡牌数=2310） ===
+  流局率 0.001 ± 0.001
+  每局chi次数 2.162 ± 0.033 (n=7443)
+  每局peng次数 2.230 ± 0.034 (n=7443)
+  每局gang次数 0.224 ± 0.011 (n=7443)
+  累计胡牌率(庄) 第6/10/14摸: 0.111±0.013, 0.248±0.018, 0.292±0.019
+  累计胡牌率(闲) 第6/10/14摸: 0.080±0.007, 0.196±0.010, 0.241±0.010
+  番数分布 1:0.71  2:0.26  4:0.03  8:0.00  16+:0.00
+  占胡比例 baotou:0.28  qidui:0.01  piao:0.01  gang_kai:0.02  four_white:0.00
+
+=== 我们(以前)（局数=14638，胡牌数=4566） ===
+  流局率 0.004 ± 0.001
+  每局chi次数 2.434 ± 0.025 (n=14638)
+  每局peng次数 2.055 ± 0.023 (n=14638)
+  每局gang次数 0.212 ± 0.008 (n=14638)
+  累计胡牌率(庄) 第6/10/14摸: 0.114±0.009, 0.239±0.012, 0.283±0.013
+  累计胡牌率(闲) 第6/10/14摸: 0.074±0.004, 0.188±0.006, 0.227±0.007
+  番数分布 1:0.82  2:0.17  4:0.01  8:0.00  16+:0.00
+  占胡比例 baotou:0.16  qidui:0.01  piao:0.01  gang_kai:0.01  four_white:0.00
+
+完整机器可读结果见 /Users/yuanye/coding_workspace/mahjong/reports/sim_calibrate.json（阶段二 tools/mc_check.py calibrate 的拟合标靶）
+=== [sim_calibrate 冒烟] 成功，耗时 13s ===
+
+跑完：Fri Oct  2 10:38:16 UTC 2026；汇总 reports/phase2_summary.txt，各步明细文件路径见上面对应段落（reports/ 或 tools/.cache/）。
+阶段二批处理（smoke）开始：Fri Oct  2 10:39:33 UTC 2026；预计总耗时 <2 分钟（每步极小规模）
+=== [10:39:33] 开始：gap_breakdown 冒烟（smoke） ===
+  已扫 500 / 3478
+  已扫 1000 / 3478
+  已扫 1500 / 3478
+  已扫 2000 / 3478
+  已扫 2500 / 3478
+  已扫 3000 / 3478
+  已扫 3478 / 3478
+共 110072 条 (房间,座位,局) 记录
+
+--- 方向：用房间哈希偶数选高手/奇数半分解（高手=9/10 名候选人通过筛选）---
+  本方向滤掉的候选高手（选人半里 diff<=0 或 n<30）：放假了偷偷训练(diff=-1.35,n=478)
+格子(财神/副露)         局数(我)   局数(高手)         分差 |         做庄        胡得少        胡得小        输得多
+0白/0组               725     1019      -0.50 |      +0.01      +0.11      -0.13      -0.49
+               95%CI（按房间聚类 bootstrap）        [-0.61,+0.18] [-0.04,+0.01] [-0.37,+0.16] [-0.13,+0.22] [-0.60,+0.11]
+0白/1组              1136     1761      -1.49 |      -0.00      -0.88      -0.21      -0.39
+               95%CI（按房间聚类 bootstrap）        [-1.82,-0.75] [-0.04,+0.01] [-1.08,-0.40] [-0.28,-0.12] [-0.61,-0.19]
+0白/2+组             1150     1702      -0.21 |      -0.02      -0.31      -0.03      +0.15
+               95%CI（按房间聚类 bootstrap）        [-0.92,-0.26] [-0.10,-0.02] [-1.09,-0.12] [-0.43,+0.12] [-0.09,+0.27]
+1白/0组               362      467      -0.88 |      +0.05      -0.13      -0.81      +0.01
+               95%CI（按房间聚类 bootstrap）        [-2.03,+1.59] [-0.08,+0.16] [-0.82,+1.03] [-1.53,-0.28] [-0.18,+0.97]
+1白/1组               510      797      -0.11 |      +0.01      +0.27      -0.49      +0.09
+               95%CI（按房间聚类 bootstrap）        [-1.26,+0.85] [-0.00,+0.27] [-0.14,+0.66] [-1.42,+0.18] [-0.14,+0.31]
+1白/2+组              454      686      -0.51 |      -0.04      +0.23      -0.41      -0.29
+               95%CI（按房间聚类 bootstrap）        [-1.59,+1.12] [-0.13,+0.10] [-1.22,+1.33] [-0.76,+0.32] [-0.57,-0.05]
+2白/1组                85      147      -5.28 |      -0.22      -3.24      -1.03      -0.78
+               95%CI（按房间聚类 bootstrap）        [-9.39,-3.97] [-0.25,+0.11] [-7.46,-1.81] [-0.57,+1.86] [-1.51,-0.39]
+对账：本方向所有格子里 |四项之和 − 实际分差| 的最大值 = 8.55e-15（验收线 < 0.01）
+
+--- 方向：用房间哈希奇数选高手/偶数半分解（高手=9/10 名候选人通过筛选）---
+  本方向滤掉的候选高手（选人半里 diff<=0 或 n<30）：铳一色14(diff=-0.00,n=400)
+格子(财神/副露)         局数(我)   局数(高手)         分差 |         做庄        胡得少        胡得小        输得多
+0白/0组               650      798      -0.35 |      +0.01      -0.31      -0.02      -0.03
+               95%CI（按房间聚类 bootstrap）        [-0.95,+0.40] [-0.01,+0.02] [-0.45,+0.59] [-0.42,+0.15] [-0.27,+0.08]
+0白/1组              1110     1428      +0.00 |      -0.00      -0.05      -0.28      +0.34
+               95%CI（按房间聚类 bootstrap）        [-0.64,+0.26] [-0.05,-0.00] [-0.64,+0.31] [-0.38,-0.16] [+0.33,+0.51]
+0白/2+组             1123     1383      +0.10 |      -0.00      +0.21      +0.04      -0.14
+               95%CI（按房间聚类 bootstrap）        [-0.48,+1.27] [-0.03,+0.02] [-0.69,+1.06] [-0.03,+0.23] [-0.34,+0.24]
+1白/0组               319      330      +0.18 |      -0.00      +0.58      -0.36      -0.03
+               95%CI（按房间聚类 bootstrap）        [-2.66,+0.75] [-0.05,+0.61] [-1.12,+1.15] [-1.75,+0.04] [-0.69,+0.67]
+1白/1组               501      661      -1.04 |      -0.00      -0.49      -0.50      -0.04
+               95%CI（按房间聚类 bootstrap）        [-1.49,+0.18] [-0.04,+0.19] [-0.56,+0.31] [-1.32,-0.36] [-0.36,+0.78]
+1白/2+组              454      541      -0.52 |      +0.00      -0.82      +0.33      -0.03
+               95%CI（按房间聚类 bootstrap）        [-2.25,+0.50] [-0.10,+0.13] [-1.91,+0.24] [-0.02,+0.49] [-0.32,+0.27]
+2白/1组                77       97      -6.64 |      +2.42      +1.20     -10.65      +0.38
+               95%CI（按房间聚类 bootstrap）        [-17.76,-1.91] [+0.05,+4.40] [-3.28,+3.67] [-25.05,-0.20] [+0.23,+1.17]
+对账：本方向所有格子里 |四项之和 − 实际分差| 的最大值 = 8.55e-15（验收线 < 0.01）
+
+完整明细见 /Users/yuanye/coding_workspace/mahjong/reports/gap_breakdown_detail.txt
+读法：两个方向的数字应该大致一致（差异在 bootstrap CI 范围内）——如果明显不一致，说明存在选择偏差，结论要打折扣。
+=== [gap_breakdown 冒烟] 成功，耗时 8s ===
+=== [10:39:41] 开始：mc_check calibrate 冒烟(--quick，不写 models/mc_opp_params.json)（smoke） ===
+=== mc_check calibrate（slim，网格 2 组 x 100 局，2s；明细 reports/mc_calibrate.json） ===
+最优参数：{'p_peng': 0.5, 'p_chi': 0.5, 'p_flat': 0.3, 'noise': 0.0, 'piao_prob': 0.5}（--quick 冒烟，未写 models/mc_opp_params.json）
+指标                       拟合       目标  <=3pp
+cum_dealer@6摸         0.050    0.120  **否**
+cum_nondealer@6摸      0.040    0.087  **否**
+cum_dealer@10摸        0.190    0.253  **否**
+cum_nondealer@10摸     0.157    0.218  **否**
+cum_dealer@14摸        0.250    0.295  **否**
+cum_nondealer@14摸     0.230    0.261  **否**
+2番+占胡                 0.163    0.319  **否**
+流局率                  0.0200   0.0031 （不拟合硬线，报告）
+每局chi次数                2.44     2.34   （报告）
+每局peng次数               2.40     2.29   （报告）
+每局gang次数               0.21     0.24   （报告）
+全部 <=3pp：**否**——对手仍偏慢/偏快，mc_offline 的结论要打折扣
+=== [mc_check calibrate 冒烟(--quick，不写 models/mc_opp_params.json)] 成功，耗时 2s ===
+=== [10:39:43] 开始：mc_offline 冒烟（未校准参数，仅验证链路）（smoke） ===
+警告：没有 /Users/yuanye/coding_workspace/mahjong/models/mc_opp_params.json，使用未校准的默认对手参数（--allow-uncalibrated，只该用于冒烟）
+决策点 36 个：{'ours/menqing_route': 6, 'ours/joker_discard': 6, 'ours/hu_piao': 6, 'master/joker_discard': 6, 'master/menqing_route': 6, 'master/hu_piao': 6}
+缓存命中 0，待算 36（每点约 5 候选 x 路线 x 64 局推演）
+=== mc_offline 汇总（明细 /Users/yuanye/coding_workspace/mahjong/reports/mc_offline.tsv） ===
+总耗时 20s（含抽点；重跑只补算新增点）；对手参数：未校准默认值
+有效点 36，出错 0
+  ours   joker_discard  n=   6  MC 显著推翻  16.7%  平均得分差(MC最优-真实) -0.941  (显著点上 +4.652)
+  ours   hu_piao        n=   6  MC 显著推翻  16.7%  平均得分差(MC最优-真实) +2.222  (显著点上 +13.333)
+  ours   menqing_route  n=   6  MC 显著推翻   0.0%  平均得分差(MC最优-真实) +0.396  (显著点上 +0.000)
+  master joker_discard  n=   6  MC 显著推翻   0.0%  平均得分差(MC最优-真实) -0.878  (显著点上 +0.000)
+  master hu_piao        n=   6  MC 显著推翻   0.0%  平均得分差(MC最优-真实) -0.465  (显著点上 +0.000)
+  master menqing_route  n=   6  MC 显著推翻   0.0%  平均得分差(MC最优-真实) +1.222  (显著点上 +0.000)
+前 10 组（财神数,副露数,离胡距离,墙剩余档,局号档）按显著推翻点数排序：
+  财神1 副露0 距离2 50-69  r1-2   n=   1  推翻    1 (100.0%)  平均差 +4.652
+  财神2 副露0 距离0 50-69  r6-8   n=   1  推翻    1 (100.0%)  平均差 +13.333
+  财神0 副露0 距离3 w>=70  r1-2   n=   3  推翻    0 (  0.0%)  平均差 +0.776
+  财神0 副露0 距离2 w>=70  r1-2   n=   3  推翻    0 (  0.0%)  平均差 -0.134
+  财神0 副露0 距离3 w>=70  r6-8   n=   3  推翻    0 (  0.0%)  平均差 +1.641
+  财神1 副露0 距离3 w>=70  r6-8   n=   3  推翻    0 (  0.0%)  平均差 -1.356
+  财神2 副露0 距离2 w>=70  r3-5   n=   2  推翻    0 (  0.0%)  平均差 +0.235
+  财神1 副露0 距离3 w>=70  r1-2   n=   2  推翻    0 (  0.0%)  平均差 -2.083
+  财神1 副露1 距离0 50-69  r3-5   n=   2  推翻    0 (  0.0%)  平均差 -1.395
+  财神0 副露0 距离3 50-69  r1-2   n=   1  推翻    0 (  0.0%)  平均差 -0.708
+路线成牌率（slim 推演里 seat0 按路线走，全部起手 / 起手有财神；只报告不拟合）：
+  R_A 胡牌率 0.230 均番 1.09 | 有财神起手 胡牌率 0.371 均番 1.15
+  R_B 胡牌率 0.180 均番 1.61 | 有财神起手 胡牌率 0.314 均番 1.73
+  R_C 胡牌率 0.070 均番 1.86 | 有财神起手 胡牌率 0.114 均番 1.25
+  R_D 胡牌率 0.070 均番 4.29 | 有财神起手 胡牌率 0.114 均番 3.50
+  真实 高手         每座位胡牌率 0.275 均番(按分布估) 1.43
+  真实 我们(当前)     每座位胡牌率 0.259 均番(按分布估) 1.36
+=== [mc_offline 冒烟（未校准参数，仅验证链路）] 成功，耗时 23s ===
+
+跑完：Fri Oct  2 10:40:06 UTC 2026；汇总 reports/phase2_summary.txt，各步明细文件路径见上面对应段落（reports/ 或 tools/.cache/）。
+阶段二批处理（smoke）开始：Fri Oct  2 14:58:25 UTC 2026；预计总耗时 <2 分钟（每步极小规模）
+=== [14:58:25] 开始：slim-equiv 冒烟(300 局)（smoke） ===
+=== mc_check slim-equiv（明细 /Users/yuanye/coding_workspace/mahjong/reports/mc_slim_equiv.txt） ===
+对照局数 300，不一致 0（验收线 0），耗时 1.1s
+分支覆盖：{'catch_play_discard': 2682, 'discard': 17539, 'discard_joker': 723, 'gang_an': 21, 'gang_bu': 43, 'hu_chain': 7, 'hu_plain': 105, 'resp_chi': 1090, 'resp_gang': 25, 'resp_pass': 61273, 'resp_peng': 808}
+=== [slim-equiv 冒烟(300 局)] 成功，耗时 2s ===
+=== [14:58:27] 开始：slim-speed 性能核（smoke） ===
+=== mc_check slim-speed（单核，4.0s） ===
+局数 1090，单局 p50=3.16ms p90=5.68ms p99=18.41ms（目标 <=5ms，性能核；能效核用 taskpolicy -c background 再跑一次）
+=== [slim-speed 性能核] 成功，耗时 6s ===
+=== [14:58:33] 开始：slim-speed 能效核(taskpolicy -c background)（smoke） ===
+=== mc_check slim-speed（单核，4.0s） ===
+局数 314，单局 p50=10.61ms p90=18.70ms p99=79.09ms（目标 <=5ms，性能核；能效核用 taskpolicy -c background 再跑一次）
+=== [slim-speed 能效核(taskpolicy -c background)] 成功，耗时 8s ===
+=== [14:58:41] 开始：mc_check calibrate 冒烟(--quick，产物写 tools/.cache，不碰 models/mc_opp_params.json)（smoke） ===
+=== mc_check calibrate（slim + 胡牌率补足；网格 2 组 x 100 局，补足测量 300 局 x (1+1+3) 轮，6s；明细 reports/mc_calibrate.json） ===
+策略参数：{'p_peng': 0.5, 'p_chi': 0.5, 'p_flat': 0.3, 'noise': 0.0, 'piao_prob': 0.5}（--quick 冒烟，写到 /Users/yuanye/coding_workspace/mahjong/tools/.cache/mc_opp_params_smoke.json，不是正式校准文件）
+补足前策略自己：第6/10/14摸累计 庄 0.043/0.167/0.233 闲 0.063/0.172/0.236；2番+ 0.136；流局 0.0200
+补足后最终验收（新种子实测；虚拟自摸占胡 16.8%）：
+指标                       实测       目标  <=3pp
+cum_dealer@6摸         0.140    0.120      是
+cum_nondealer@6摸      0.072    0.087      是
+cum_dealer@10摸        0.240    0.253      是
+cum_nondealer@10摸     0.159    0.218  **否**
+cum_dealer@14摸        0.287    0.295      是
+cum_nondealer@14摸     0.221    0.261  **否**
+2番+占胡                 0.281    0.319  **否**
+流局率                  0.0267   0.0031   （报告）
+每局chi次数                2.30     2.34 （报告；补足让对局更早结束）
+每局peng次数               1.88     2.29 （报告；补足让对局更早结束）
+每局gang次数               0.22     0.24 （报告；补足让对局更早结束）
+拟合用目标曲线=高手曲线下移（@20摸 庄闲各 -2.6pp，让庄+3×闲<=1-流局率）；验收仍按原始高手曲线判 <=3pp
+注意：第 12,14,16,18,20 摸的目标 庄+3×闲 累计胡牌率之和 >1（高手这条曲线是'高手座位'的，四家都按高手水平不可能同时满足），该处偏差有结构性下限。
+全部 <=3pp：**否**——未达标，mc_offline 的结论要打折扣
+=== [mc_check calibrate 冒烟(--quick，产物写 tools/.cache，不碰 models/mc_opp_params.json)] 成功，耗时 7s ===
+
+跑完：Fri Oct  2 14:58:48 UTC 2026；汇总 reports/phase2_summary.txt，各步明细文件路径见上面对应段落（reports/ 或 tools/.cache/）。
+阶段二批处理（smoke）开始：Fri Oct  2 14:58:52 UTC 2026；预计总耗时 <2 分钟（每步极小规模）
+=== [14:58:52] 开始：mc_offline 冒烟（mccal 冒烟产物 + 补足表，仅验证链路）（smoke） ===
+决策点 36 个：{'ours/menqing_route': 6, 'ours/joker_discard': 6, 'ours/hu_piao': 6, 'master/joker_discard': 6, 'master/menqing_route': 6, 'master/hu_piao': 6}
+缓存命中 0，待算 36（每点约 5 候选 x 路线 x 64 局推演）
+=== mc_offline 汇总（明细 /Users/yuanye/coding_workspace/mahjong/reports/mc_offline.tsv） ===
+总耗时 16s（含抽点；重跑只补算新增点）；对手参数：策略参数 {'p_peng': 0.5, 'p_chi': 0.5, 'p_flat': 0.3, 'noise': 0.0, 'piao_prob': 0.5} + 胡牌率补足表（校准未全部达到 <=3pp，见 reports/mc_calibrate.json）
+有效点 36，出错 0
+  ours   joker_discard  n=   6  MC 显著推翻  16.7%  平均得分差(MC最优-真实) +0.719  (显著点上 +5.095)
+  ours   hu_piao        n=   6  MC 显著推翻   0.0%  平均得分差(MC最优-真实) +1.222  (显著点上 +0.000)
+  ours   menqing_route  n=   6  MC 显著推翻   0.0%  平均得分差(MC最优-真实) -0.366  (显著点上 +0.000)
+  master joker_discard  n=   6  MC 显著推翻   0.0%  平均得分差(MC最优-真实) +0.632  (显著点上 +0.000)
+  master hu_piao        n=   6  MC 显著推翻   0.0%  平均得分差(MC最优-真实) +0.000  (显著点上 +0.000)
+  master menqing_route  n=   6  MC 显著推翻   0.0%  平均得分差(MC最优-真实) +0.144  (显著点上 +0.000)
+前 10 组（财神数,副露数,离胡距离,墙剩余档,局号档）按显著推翻点数排序：
+  财神1 副露0 距离3 w>=70  r1-2   n=   2  推翻    1 ( 50.0%)  平均差 +1.839
+  财神0 副露0 距离3 w>=70  r1-2   n=   3  推翻    0 (  0.0%)  平均差 -1.327
+  财神0 副露0 距离2 w>=70  r1-2   n=   3  推翻    0 (  0.0%)  平均差 +0.208
+  财神0 副露0 距离3 w>=70  r6-8   n=   3  推翻    0 (  0.0%)  平均差 -0.164
+  财神1 副露0 距离3 w>=70  r6-8   n=   3  推翻    0 (  0.0%)  平均差 +0.292
+  财神2 副露0 距离2 w>=70  r3-5   n=   2  推翻    0 (  0.0%)  平均差 +0.000
+  财神1 副露1 距离0 50-69  r3-5   n=   2  推翻    0 (  0.0%)  平均差 +0.000
+  财神0 副露0 距离3 50-69  r1-2   n=   1  推翻    0 (  0.0%)  平均差 +0.000
+  财神0 副露0 距离3 w>=70  r3-5   n=   1  推翻    0 (  0.0%)  平均差 -0.625
+  财神2 副露0 距离1 w>=70  r3-5   n=   1  推翻    0 (  0.0%)  平均差 +0.000
+路线成牌率（slim 推演里 seat0 按路线走，全部起手 / 起手有财神；只报告不拟合）：
+  R_A 胡牌率 0.193 均番 1.16 | 有财神起手 胡牌率 0.348 均番 1.13
+  R_B 胡牌率 0.103 均番 1.58 | 有财神起手 胡牌率 0.180 均番 1.75
+  R_C 胡牌率 0.043 均番 1.92 | 有财神起手 胡牌率 0.090 均番 1.75
+  R_D 胡牌率 0.060 均番 3.44 | 有财神起手 胡牌率 0.112 均番 3.20
+  真实 高手         每座位胡牌率 0.275 均番(按分布估) 1.43
+  真实 我们(当前)     每座位胡牌率 0.259 均番(按分布估) 1.36
+=== [mc_offline 冒烟（mccal 冒烟产物 + 补足表，仅验证链路）] 成功，耗时 21s ===
+
+跑完：Fri Oct  2 14:59:13 UTC 2026；汇总 reports/phase2_summary.txt，各步明细文件路径见上面对应段落（reports/ 或 tools/.cache/）。
+阶段二批处理（full）开始：2026年10月 2日 星期五 23时07分27秒 CST，步骤： equiv speed mccal offline
+预计耗时（10 核估计，量级而非保证）：
+  rules    ~15-25 分钟（全语料回放新旧规则 + 扫日志）
+  equiv    ~1 分钟（1 万局 slim 对照 RoundEngine）
+  speed    ~2.5 分钟（性能核 60s + 能效核 60s + 启动）
+  seatbias ~60 分钟（2v2 2250 种子 + 1v3 3600 种子，各约 30 分钟）
+  simcal   ~10-15 分钟（真实语料扫描 + arena2 自对局 400 种子）
+  gap      ~5-10 分钟
+  mccal    ~5-8 分钟（72 组参数 x 1500 局 + 补足测量 11 轮 x 3 万局 slim 自对弈）
+  offline  ~30-60 分钟（<=1800 个决策点 x 512 局 x 多候选）
+  合计     约 2.5-3.5 小时
+=== mc_check slim-equiv（明细 /Users/yuanye/coding_workspace/mahjong/reports/mc_slim_equiv.txt） ===
+对照局数 10000，不一致 0（验收线 0），耗时 37.7s
+分支覆盖：{'catch_play_discard': 90954, 'discard': 599464, 'discard_joker': 24399, 'gang_an': 788, 'gang_bu': 1878, 'hu_chain': 325, 'hu_plain': 3188, 'resp_chi': 37045, 'resp_gang': 835, 'resp_pass': 2093205, 'resp_peng': 28530}
+=== [slim-equiv(10000 局)] 成功，耗时 39s ===
+=== mc_check slim-speed（单核，60.0s） ===
+局数 17497，单局 p50=2.92ms p90=4.89ms p99=10.24ms（目标 <=5ms，性能核；能效核用 taskpolicy -c background 再跑一次）
+=== [slim-speed 性能核] 成功，耗时 62s ===
+=== mc_check slim-speed（单核，60.0s） ===
+局数 4418，单局 p50=10.83ms p90=21.16ms p99=55.94ms（目标 <=5ms，性能核；能效核用 taskpolicy -c background 再跑一次）
+=== [slim-speed 能效核(taskpolicy -c background)] 成功，耗时 66s ===
+=== [mccal] 跳过：依赖的 simcal 在 full 模式下没有成功（先跑 simcal） ===
+=== [offline] 跳过：依赖的 mccal 在 full 模式下没有成功（先跑 mccal） ===
+
+跑完：2026年10月 2日 星期五 23时10分14秒 CST；汇总 reports/phase2_summary.txt，各步明细文件路径见上面对应段落（reports/ 或 tools/.cache/）。
+阶段二批处理（full）开始：2026年10月 2日 星期五 23时14分32秒 CST，步骤： rules seatbias simcal gap mccal offline
+预计耗时（10 核估计，量级而非保证）：
+  rules    ~15-25 分钟（全语料回放新旧规则 + 扫日志）
+  equiv    ~1 分钟（1 万局 slim 对照 RoundEngine）
+  speed    ~2.5 分钟（性能核 60s + 能效核 60s + 启动）
+  seatbias ~60 分钟（2v2 2250 种子 + 1v3 3600 种子，各约 30 分钟）
+  simcal   ~10-15 分钟（真实语料扫描 + arena2 自对局 400 种子）
+  gap      ~5-10 分钟
+  mccal    ~5-8 分钟（72 组参数 x 1500 局 + 补足测量 11 轮 x 3 万局 slim 自对弈）
+  offline  ~30-60 分钟（<=1800 个决策点 x 512 局 x 多候选）
+  合计     约 2.5-3.5 小时
+=== [23:14:32] 开始：rules_fix_impact 全量（full） ===
+=== rules_fix_impact（明细 /Users/yuanye/coding_workspace/mahjong/reports/rules_fix_impact.tsv） ===
+文件 3478，回放局数 27518（回放中断 0），检查摸牌 847995 次
+自摸判定新旧不同：83 次（旧能胡/新不能胡 83，旧不能胡/新能胡 0）
+爆头判定新旧不同：4 次（旧判爆头/新判不是 4，反过来 0）
+线上日志：hu 请求 7321 次，其中 conflict_409 被拒 41 次
+（409 里有多少是这个 bug 造成的：看明细里 kind=hu、旧=True 新=False 的行，按 file/round/seat 对应 logs 里同局同座位的 409 记录）
+=== [rules_fix_impact 全量] 成功，耗时 360s ===
+=== [23:20:33] 开始：arena2 seatbias 2v2（2250 种子）（full） ===
+Process SpawnPoolWorker-6:
+Process SpawnPoolWorker-3:
+Process SpawnPoolWorker-2:
+Process SpawnPoolWorker-5:
+Process SpawnPoolWorker-4:
+Process SpawnPoolWorker-7:
+Process SpawnPoolWorker-1:
+Process SpawnPoolWorker-10:
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/process.py", line 315, in _bootstrap
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/process.py", line 108, in run
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "<string>", line 1, in <module>
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/process.py", line 315, in _bootstrap
+    self._target(*self._args, **self._kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/pool.py", line 125, in worker
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    result = (True, func(*args, **kwds))
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 424, in _ab_worker
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/process.py", line 315, in _bootstrap
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/process.py", line 315, in _bootstrap
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/spawn.py", line 116, in spawn_main
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/spawn.py", line 116, in spawn_main
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/process.py", line 315, in _bootstrap
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/spawn.py", line 116, in spawn_main
+    round_records, match_summaries, stats, illegal_log = _run_ab_seed(seed, a, b, layout_name, rounds, rules)
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 361, in _run_ab_seed
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/process.py", line 315, in _bootstrap
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/process.py", line 315, in _bootstrap
+    self.run()
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/process.py", line 108, in run
+    self.run()
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/process.py", line 108, in run
+    m = Arena2Match(seed, seat_weights=seat_weights, rules=rules, rounds=rounds,
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 254, in play
+    self._target(*self._args, **self._kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+    engine = self.match.play_round_with_actor(actor)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/sim/engine.py", line 819, in play_round_with_actor
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 424, in _ab_worker
+    self._target(*self._args, **self._kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 424, in _ab_worker
+    self.run()
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/process.py", line 108, in run
+    actor(engine)
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 251, in actor
+    self._target(*self._args, **self._kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+    play_round(e, self._choose_fn, self.stats, round_meta=round_meta,
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 188, in play_round
+    action = choose_fn(seat, snapshot)
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 239, in _choose_fn
+    action = choose_action(snapshot, self.rules)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/bot.py", line 333, in choose_action
+    exitcode = _main(fd, parent_sentinel)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/spawn.py", line 129, in _main
+    return self._bootstrap(parent_sentinel)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/process.py", line 331, in _bootstrap
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 424, in _ab_worker
+    exitcode = _main(fd, parent_sentinel)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/spawn.py", line 129, in _main
+    return self._bootstrap(parent_sentinel)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/process.py", line 331, in _bootstrap
+    self.run()
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 424, in _ab_worker
+    return choose_chi(snapshot) or {"action": "pass", "tile": ""}
+  File "/Users/yuanye/coding_workspace/mahjong/mj/responses.py", line 439, in choose_chi
+    traceback.print_exc()
+    traceback.print_exc()
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/traceback.py", line 163, in print_exc
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/traceback.py", line 163, in print_exc
+    exitcode = _main(fd, parent_sentinel)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/spawn.py", line 129, in _main
+    self.run()
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/process.py", line 108, in run
+    return self._bootstrap(parent_sentinel)
+    self._target(*self._args, **self._kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/process.py", line 331, in _bootstrap
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 424, in _ab_worker
+    assessment = claim_assessment(snapshot, names)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/responses.py", line 262, in claim_assessment
+    after_shanten, after_ukeire = combined_route(left_counts, meld_groups + 1)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 202, in combined_route
+    traceback.print_exc()
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/traceback.py", line 163, in print_exc
+    print_exception(*sys.exc_info(), limit=limit, file=file, chain=chain)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/traceback.py", line 103, in print_exception
+    print_exception(*sys.exc_info(), limit=limit, file=file, chain=chain)
+    print_exception(*sys.exc_info(), limit=limit, file=file, chain=chain)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/traceback.py", line 103, in print_exception
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/traceback.py", line 103, in print_exception
+    for line in TracebackException(
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/traceback.py", line 508, in __init__
+    for line in TracebackException(
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/traceback.py", line 508, in __init__
+    current, waits = _combined_route_cached(tuple(counts), meld_groups)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 185, in _combined_route_cached
+    return current, tuple(ukeire(counts, meld_groups))
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 114, in ukeire
+    return list(_ukeire_cached(tuple(counts), meld_groups))
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 108, in _ukeire_cached
+    if _search(tuple(values), jokers, melds=meld_groups) < current:
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 28, in _search
+    best = min(best, _search(_remove(c, i, 2), jokers, i, melds, pairs + 1, taatsu))
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 23, in _search
+    best = _search(_remove(c, i), jokers, i, melds, pairs, taatsu)
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    for line in TracebackException(
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/traceback.py", line 508, in __init__
+    self.stack = StackSummary.extract(
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/traceback.py", line 353, in extract
+    self.stack = StackSummary.extract(
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/traceback.py", line 353, in extract
+    round_records, match_summaries, stats, illegal_log = _run_ab_seed(seed, a, b, layout_name, rounds, rules)
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 361, in _run_ab_seed
+    linecache.lazycache(filename, f.f_globals)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/linecache.py", line 187, in lazycache
+    linecache.lazycache(filename, f.f_globals)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/linecache.py", line 180, in lazycache
+    self.stack = StackSummary.extract(
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/traceback.py", line 366, in extract
+    f.line
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/traceback.py", line 288, in line
+    self._line = linecache.getline(self.filename, self.lineno).strip()
+KeyboardInterrupt
+    round_records, match_summaries, stats, illegal_log = _run_ab_seed(seed, a, b, layout_name, rounds, rules)
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 361, in _run_ab_seed
+    round_records, match_summaries, stats, illegal_log = _run_ab_seed(seed, a, b, layout_name, rounds, rules)
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 361, in _run_ab_seed
+    round_records, match_summaries, stats, illegal_log = _run_ab_seed(seed, a, b, layout_name, rounds, rules)
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 361, in _run_ab_seed
+    m = Arena2Match(seed, seat_weights=seat_weights, rules=rules, rounds=rounds,
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 254, in play
+    m = Arena2Match(seed, seat_weights=seat_weights, rules=rules, rounds=rounds,
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 254, in play
+    m = Arena2Match(seed, seat_weights=seat_weights, rules=rules, rounds=rounds,
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 254, in play
+    engine = self.match.play_round_with_actor(actor)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/sim/engine.py", line 819, in play_round_with_actor
+    engine = self.match.play_round_with_actor(actor)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/sim/engine.py", line 819, in play_round_with_actor
+    engine = self.match.play_round_with_actor(actor)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/sim/engine.py", line 819, in play_round_with_actor
+    actor(engine)
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 251, in actor
+    name = module_globals.get('__name_for_get_source__', None)
+KeyboardInterrupt
+    m = Arena2Match(seed, seat_weights=seat_weights, rules=rules, rounds=rounds,
+    play_round(e, self._choose_fn, self.stats, round_meta=round_meta,
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 181, in play_round
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 254, in play
+    action = choose_fn(seat, snapshot)
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 239, in _choose_fn
+    engine = self.match.play_round_with_actor(actor)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/sim/engine.py", line 819, in play_round_with_actor
+    action = choose_action(snapshot, self.rules)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/bot.py", line 314, in choose_action
+    return choose_discard(snapshot, rules)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/bot.py", line 129, in choose_discard
+    if use_route else choose_baseline_discard(hand, meld_groups, chain_count, piao, rules,
+  File "/Users/yuanye/coding_workspace/mahjong/mj/strategy.py", line 127, in choose_discard
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/spawn.py", line 116, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/spawn.py", line 129, in _main
+    return self._bootstrap(parent_sentinel)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/process.py", line 331, in _bootstrap
+    traceback.print_exc()
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/traceback.py", line 163, in print_exc
+    print_exception(*sys.exc_info(), limit=limit, file=file, chain=chain)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/traceback.py", line 103, in print_exception
+    for line in TracebackException(
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/traceback.py", line 508, in __init__
+    self.stack = StackSummary.extract(
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/traceback.py", line 359, in extract
+    result.append(FrameSummary(
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/traceback.py", line 243, in __init__
+    def __init__(self, filename, lineno, name, *, lookup_line=True,
+KeyboardInterrupt
+    actor(engine)
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 251, in actor
+    play_round(e, self._choose_fn, self.stats, round_meta=round_meta,
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 181, in play_round
+    action = choose_fn(seat, snapshot)
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 239, in _choose_fn
+    action = choose_action(snapshot, self.rules)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/bot.py", line 314, in choose_action
+    return choose_discard(snapshot, rules)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/bot.py", line 129, in choose_discard
+    if use_route else choose_baseline_discard(hand, meld_groups, chain_count, piao, rules,
+  File "/Users/yuanye/coding_workspace/mahjong/mj/strategy.py", line 127, in choose_discard
+    get_lines = functools.partial(get_source, name)
+KeyboardInterrupt
+    actor(engine)
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 251, in actor
+    play_round(e, self._choose_fn, self.stats, round_meta=round_meta,
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 181, in play_round
+    action = choose_fn(seat, snapshot)
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 239, in _choose_fn
+    action = choose_action(snapshot, self.rules)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/bot.py", line 314, in choose_action
+    return choose_discard(snapshot, rules)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/bot.py", line 128, in choose_discard
+    discard = (choose_route_discard(hand, meld_groups, chain_count, piao, rules, visible)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/ev.py", line 214, in choose_route_discard
+    return _cached_original()
+  File "/Users/yuanye/coding_workspace/mahjong/mj/strategy.py", line 110, in _cached_original
+    return _cached_original()
+  File "/Users/yuanye/coding_workspace/mahjong/mj/strategy.py", line 110, in _cached_original
+    _cache["v"] = _original()
+  File "/Users/yuanye/coding_workspace/mahjong/mj/strategy.py", line 98, in _original
+    _cache["v"] = _original()
+  File "/Users/yuanye/coding_workspace/mahjong/mj/strategy.py", line 95, in _original
+    return max(tier, key=lambda tile: discard_features.score_joker(tiles, tile, meld_groups, visible,
+  File "/Users/yuanye/coding_workspace/mahjong/mj/strategy.py", line 98, in <lambda>
+    return max(tier, key=lambda tile: discard_features.score(tiles, tile, meld_groups, visible, weights,
+  File "/Users/yuanye/coding_workspace/mahjong/mj/strategy.py", line 95, in <lambda>
+    return max(tier, key=lambda tile: discard_features.score_joker(tiles, tile, meld_groups, visible,
+  File "/Users/yuanye/coding_workspace/mahjong/mj/discard_features.py", line 182, in score_joker
+    return max(tier, key=lambda tile: discard_features.score(tiles, tile, meld_groups, visible, weights,
+  File "/Users/yuanye/coding_workspace/mahjong/mj/discard_features.py", line 111, in score
+    override = route_ev.maybe_override_discard(tiles, meld_groups, chain_count, piao, rules, merged, visible,
+  File "/Users/yuanye/coding_workspace/mahjong/mj/route_ev.py", line 646, in maybe_override_discard
+    f = features(tiles, discard, meld_groups, visible, weights)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/discard_features.py", line 89, in features
+    actor(engine)
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 251, in actor
+    round_records, match_summaries, stats, illegal_log = _run_ab_seed(seed, a, b, layout_name, rounds, rules)
+    f = features_joker(tiles, discard, meld_groups, visible, weights, rules)
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 361, in _run_ab_seed
+  File "/Users/yuanye/coding_workspace/mahjong/mj/discard_features.py", line 159, in features_joker
+    f["uke3"] = wait_live_score(ukeire(counts, meld_groups), visible)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 114, in ukeire
+    play_round(e, self._choose_fn, self.stats, round_meta=round_meta,
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 181, in play_round
+    f = features(tiles, discard, meld_groups, visible, weights)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/discard_features.py", line 84, in features
+    return list(_ukeire_cached(tuple(counts), meld_groups))
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 108, in _ukeire_cached
+    current, waits = combined_route(counts, meld_groups)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 202, in combined_route
+    if _search(tuple(values), jokers, melds=meld_groups) < current:
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 23, in _search
+    m = Arena2Match(seed, seat_weights=seat_weights, rules=rules, rounds=rounds,
+    action = choose_fn(seat, snapshot)
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 239, in _choose_fn
+    current, waits = _combined_route_cached(tuple(counts), meld_groups)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 187, in _combined_route_cached
+    best = _search(_remove(c, i), jokers, i, melds, pairs, taatsu)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 55, in _search
+    action = choose_action(snapshot, self.rules)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/bot.py", line 314, in choose_action
+    return current, tuple(ukeire(counts, meld_groups))
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 114, in ukeire
+    best = min(best, _search(tuple(values), jokers - need, i, melds, pairs, taatsu + 1))
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 55, in _search
+    return choose_discard(snapshot, rules)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/bot.py", line 129, in choose_discard
+    return list(_ukeire_cached(tuple(counts), meld_groups))
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 108, in _ukeire_cached
+    best = min(best, _search(tuple(values), jokers - need, i, melds, pairs, taatsu + 1))
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 55, in _search
+    if use_route else choose_baseline_discard(hand, meld_groups, chain_count, piao, rules,
+  File "/Users/yuanye/coding_workspace/mahjong/mj/strategy.py", line 127, in choose_discard
+    if _search(tuple(values), jokers, melds=meld_groups) < current:
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 55, in _search
+    return _cached_original()
+  File "/Users/yuanye/coding_workspace/mahjong/mj/strategy.py", line 110, in _cached_original
+    best = min(best, _search(tuple(values), jokers - need, i, melds, pairs, taatsu + 1))
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 23, in _search
+    _cache["v"] = _original()
+  File "/Users/yuanye/coding_workspace/mahjong/mj/strategy.py", line 95, in _original
+    best = min(best, _search(tuple(values), jokers - need, i, melds, pairs, taatsu + 1))
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 63, in _search
+    return max(tier, key=lambda tile: discard_features.score(tiles, tile, meld_groups, visible, weights,
+  File "/Users/yuanye/coding_workspace/mahjong/mj/strategy.py", line 95, in <lambda>
+    best = _search(_remove(c, i), jokers, i, melds, pairs, taatsu)
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/process.py", line 331, in _bootstrap
+    value, letter = best_route(counts, meld_groups, ctx, weights, visible)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/route_ev.py", line 495, in best_route
+    traceback.print_exc()
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/traceback.py", line 163, in print_exc
+    return max(tier, key=lambda tile: discard_features.score(tiles, tile, meld_groups, visible, weights,
+  File "/Users/yuanye/coding_workspace/mahjong/mj/discard_features.py", line 111, in score
+    best = min(best, _search(tuple(values), jokers - need, i, melds, pairs, taatsu + 1))
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 55, in _search
+    print_exception(*sys.exc_info(), limit=limit, file=file, chain=chain)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/traceback.py", line 103, in print_exception
+    for line in TracebackException(
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/traceback.py", line 508, in __init__
+    self.stack = StackSummary.extract(
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/traceback.py", line 353, in extract
+    for letter, d, p_rate, w_rate, fan in _routes(counts13, meld_groups, visible, routes, weights):
+  File "/Users/yuanye/coding_workspace/mahjong/mj/route_ev.py", line 398, in _routes
+    f = features(tiles, discard, meld_groups, visible, weights)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/discard_features.py", line 84, in features
+    linecache.lazycache(filename, f.f_globals)
+    best = min(best, _search(tuple(values), jokers - need, i, melds, pairs, taatsu + 1))
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 55, in _search
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/linecache.py", line 171, in lazycache
+    if filename in cache:
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    std_waits = ukeire(counts13, meld_groups)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 114, in ukeire
+    current, waits = combined_route(counts, meld_groups)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 202, in combined_route
+    best = min(best, _search(tuple(values), jokers - need, i, melds, pairs, taatsu + 1))
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 28, in _search
+    return list(_ukeire_cached(tuple(counts), meld_groups))
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 108, in _ukeire_cached
+    current, waits = _combined_route_cached(tuple(counts), meld_groups)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 185, in _combined_route_cached
+    best = min(best, _search(_remove(c, i, 2), jokers, i, melds, pairs + 1, taatsu))
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 30, in _search
+    if _search(tuple(values), jokers, melds=meld_groups) < current:
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 23, in _search
+    return current, tuple(ukeire(counts, meld_groups))
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 114, in ukeire
+    best = min(best, _search(_remove(c, i, 2), jokers - 1, i, melds + 1, pairs, taatsu))
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/process.py", line 331, in _bootstrap
+    traceback.print_exc()
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/traceback.py", line 163, in print_exc
+    print_exception(*sys.exc_info(), limit=limit, file=file, chain=chain)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/traceback.py", line 103, in print_exception
+    for line in TracebackException(
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/traceback.py", line 508, in __init__
+    self.stack = StackSummary.extract(
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/traceback.py", line 353, in extract
+    linecache.lazycache(filename, f.f_globals)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/linecache.py", line 184, in lazycache
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 254, in play
+    best = _search(_remove(c, i), jokers, i, melds, pairs, taatsu)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 23, in _search
+    get_source = getattr(loader, 'get_source', None)
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+    return list(_ukeire_cached(tuple(counts), meld_groups))
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 108, in _ukeire_cached
+    best = _search(_remove(c, i), jokers, i, melds, pairs, taatsu)
+    engine = self.match.play_round_with_actor(actor)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 23, in _search
+  File "/Users/yuanye/coding_workspace/mahjong/mj/sim/engine.py", line 819, in play_round_with_actor
+    if _search(tuple(values), jokers, melds=meld_groups) < current:
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 23, in _search
+    best = _search(_remove(c, i), jokers, i, melds, pairs, taatsu)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 32, in _search
+    best = _search(_remove(c, i), jokers, i, melds, pairs, taatsu)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 55, in _search
+    best = min(best, _search(_remove(c, i), jokers - 1, i, melds, pairs + 1, taatsu))
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+    best = min(best, _search(tuple(values), jokers - need, i, melds, pairs, taatsu + 1))
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 23, in _search
+    best = _search(_remove(c, i), jokers, i, melds, pairs, taatsu)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 63, in _search
+  File "<string>", line 1, in <module>
+    best = min(best, _search(tuple(values), jokers - need, i, melds, pairs, taatsu + 1))
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/process.py", line 331, in _bootstrap
+    traceback.print_exc()
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/traceback.py", line 163, in print_exc
+    print_exception(*sys.exc_info(), limit=limit, file=file, chain=chain)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/traceback.py", line 103, in print_exception
+    for line in TracebackException(
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/traceback.py", line 508, in __init__
+  File "<string>", line 1, in <module>
+    self.stack = StackSummary.extract(
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/traceback.py", line 347, in extract
+    for f, lineno in frame_gen:
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/traceback.py", line 312, in walk_tb
+    yield tb.tb_frame, tb.tb_lineno
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/spawn.py", line 116, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/spawn.py", line 129, in _main
+    return self._bootstrap(parent_sentinel)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/process.py", line 335, in _bootstrap
+    util._flush_std_streams()
+KeyboardInterrupt
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/spawn.py", line 116, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/spawn.py", line 129, in _main
+    return self._bootstrap(parent_sentinel)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/process.py", line 331, in _bootstrap
+    traceback.print_exc()
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/traceback.py", line 163, in print_exc
+    print_exception(*sys.exc_info(), limit=limit, file=file, chain=chain)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/traceback.py", line 103, in print_exception
+    for line in TracebackException(
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/traceback.py", line 508, in __init__
+    self.stack = StackSummary.extract(
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/traceback.py", line 366, in extract
+    f.line
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/traceback.py", line 288, in line
+    self._line = linecache.getline(self.filename, self.lineno).strip()
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/linecache.py", line 30, in getline
+    lines = getlines(filename, module_globals)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/linecache.py", line 49, in getlines
+    mods = list(sys.modules.values())
+KeyboardInterrupt
+    self.run()
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/pool.py", line 125, in worker
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/spawn.py", line 116, in spawn_main
+    result = (True, func(*args, **kwds))
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 424, in _ab_worker
+    exitcode = _main(fd, parent_sentinel)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/spawn.py", line 129, in _main
+    return self._bootstrap(parent_sentinel)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/process.py", line 333, in _bootstrap
+    threading._shutdown()
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/threading.py", line 1434, in _shutdown
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/spawn.py", line 116, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/spawn.py", line 129, in _main
+    return self._bootstrap(parent_sentinel)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/process.py", line 334, in _bootstrap
+    util.info('process exiting with exitcode %d' % exitcode)
+KeyboardInterrupt
+    actor(engine)
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 251, in actor
+    play_round(e, self._choose_fn, self.stats, round_meta=round_meta,
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 188, in play_round
+    action = choose_fn(seat, snapshot)
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 239, in _choose_fn
+    action = choose_action(snapshot, self.rules)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/bot.py", line 325, in choose_action
+    return response_gang_take(snapshot) or choose_peng(snapshot) or {"action": "pass", "tile": ""}
+  File "/Users/yuanye/coding_workspace/mahjong/mj/responses.py", line 172, in choose_peng
+    if not claim_assessment(snapshot, (tile, tile))["allowed"]:
+  File "/Users/yuanye/coding_workspace/mahjong/mj/responses.py", line 262, in claim_assessment
+    after_shanten, after_ukeire = combined_route(left_counts, meld_groups + 1)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 202, in combined_route
+    current, waits = _combined_route_cached(tuple(counts), meld_groups)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 185, in _combined_route_cached
+    return current, tuple(ukeire(counts, meld_groups))
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 114, in ukeire
+    for atexit_call in reversed(_threading_atexits):
+KeyboardInterrupt
+    return list(_ukeire_cached(tuple(counts), meld_groups))
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 108, in _ukeire_cached
+    if _search(tuple(values), jokers, melds=meld_groups) < current:
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 23, in _search
+    best = _search(_remove(c, i), jokers, i, melds, pairs, taatsu)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 23, in _search
+    best = _search(_remove(c, i), jokers, i, melds, pairs, taatsu)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 33, in _search
+    best = min(best, _search(_remove(c, i), jokers - 1, i, melds, pairs, taatsu + 1))
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 33, in _search
+    best = min(best, _search(_remove(c, i), jokers - 1, i, melds, pairs, taatsu + 1))
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 63, in _search
+    best = min(best, _search(tuple(values), jokers - need, i, melds, pairs, taatsu + 1))
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/process.py", line 330, in _bootstrap
+    sys.stderr.write('Process %s:\n' % self.name)
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/spawn.py", line 116, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/spawn.py", line 129, in _main
+    return self._bootstrap(parent_sentinel)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/process.py", line 334, in _bootstrap
+    util.info('process exiting with exitcode %d' % exitcode)
+KeyboardInterrupt
+    round_records, match_summaries, stats, illegal_log = _run_ab_seed(seed, a, b, layout_name, rounds, rules)
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 361, in _run_ab_seed
+    m = Arena2Match(seed, seat_weights=seat_weights, rules=rules, rounds=rounds,
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 254, in play
+    engine = self.match.play_round_with_actor(actor)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/sim/engine.py", line 819, in play_round_with_actor
+Error in atexit._run_exitfuncs:
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/logging/__init__.py", line 2133, in shutdown
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 251, in actor
+    play_round(e, self._choose_fn, self.stats, round_meta=round_meta,
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 181, in play_round
+    action = choose_fn(seat, snapshot)
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 239, in _choose_fn
+    for wr in reversed(handlerList[:]):
+KeyboardInterrupt
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 454, in _run_ab
+    action = choose_action(snapshot, self.rules)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/bot.py", line 314, in choose_action
+    return choose_discard(snapshot, rules)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/bot.py", line 129, in choose_discard
+    if use_route else choose_baseline_discard(hand, meld_groups, chain_count, piao, rules,
+  File "/Users/yuanye/coding_workspace/mahjong/mj/strategy.py", line 127, in choose_discard
+    return _cached_original()
+  File "/Users/yuanye/coding_workspace/mahjong/mj/strategy.py", line 110, in _cached_original
+    _cache["v"] = _original()
+  File "/Users/yuanye/coding_workspace/mahjong/mj/strategy.py", line 98, in _original
+    return max(tier, key=lambda tile: discard_features.score_joker(tiles, tile, meld_groups, visible,
+  File "/Users/yuanye/coding_workspace/mahjong/mj/strategy.py", line 98, in <lambda>
+    return max(tier, key=lambda tile: discard_features.score_joker(tiles, tile, meld_groups, visible,
+  File "/Users/yuanye/coding_workspace/mahjong/mj/discard_features.py", line 182, in score_joker
+    f = features_joker(tiles, discard, meld_groups, visible, weights, rules)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/discard_features.py", line 159, in features_joker
+    for seed, rr, ms, st, il in pool.imap_unordered(_ab_worker, todo, chunksize=1):
+    f = features(tiles, discard, meld_groups, visible, weights)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/discard_features.py", line 84, in features
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/pool.py", line 858, in next
+    self._cond.wait(timeout)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/threading.py", line 312, in wait
+    current, waits = combined_route(counts, meld_groups)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 202, in combined_route
+    waiter.acquire()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 733, in <module>
+    current, waits = _combined_route_cached(tuple(counts), meld_groups)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 185, in _combined_route_cached
+    main()
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 729, in main
+    args.func(args)
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 643, in cmd_seatbias
+    return current, tuple(ukeire(counts, meld_groups))
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 114, in ukeire
+    round_records = cmd_ab(args)
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 616, in cmd_ab
+    return list(_ukeire_cached(tuple(counts), meld_groups))
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 108, in _ukeire_cached
+    if _search(tuple(values), jokers, melds=meld_groups) < current:
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 23, in _search
+    round_records, match_summaries, total_stats, illegal_log, new_runs, elapsed, reused = _run_ab(
+  File "/Users/yuanye/coding_workspace/mahjong/tools/arena2.py", line 460, in _run_ab
+    best = _search(_remove(c, i), jokers, i, melds, pairs, taatsu)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 23, in _search
+    _save_cached_seed(tag, seed, rr, ms, st, il)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/pool.py", line 736, in __exit__
+    self.terminate()
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/pool.py", line 654, in terminate
+    best = _search(_remove(c, i), jokers, i, melds, pairs, taatsu)
+  File "/Users/yuanye/coding_workspace/mahjong/mj/shanten.py", line 23, in _search
+    self._terminate()
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/util.py", line 224, in __call__
+    best = _search(_remove(c, i), jokers, i, melds, pairs, taatsu)
+  [Previous line repeated 5 more times]
+    res = self._callback(*self._args, **self._kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/pool.py", line 692, in _terminate_pool
+    cls._help_stuff_finish(inqueue, task_handler, len(pool))
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/pool.py", line 673, in _help_stuff_finish
+    while task_handler.is_alive() and inqueue._reader.poll():
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/threading.py", line 1122, in is_alive
+    if self._is_stopped or not self._started.is_set():
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/threading.py", line 529, in is_set
+    def is_set(self):
+KeyboardInterrupt
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/process.py", line 330, in _bootstrap
+    sys.stderr.write('Process %s:\n' % self.name)
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/spawn.py", line 116, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/spawn.py", line 129, in _main
+    return self._bootstrap(parent_sentinel)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/process.py", line 333, in _bootstrap
+    threading._shutdown()
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/threading.py", line 1430, in _shutdown
+    _main_thread._stop()
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/threading.py", line 1007, in _stop
+    if not self.daemon:
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/threading.py", line 1127, in daemon
+    @property
+KeyboardInterrupt
+Error in atexit._run_exitfuncs:
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/multiprocessing/popen_fork.py", line 27, in poll
+    pid, sts = os.waitpid(self.pid, flag)
+KeyboardInterrupt
+阶段二批处理（full）开始：2026年10月 3日 星期六 10时21分45秒 CST，步骤： simcal gap mccal offline
+预计耗时（6 核估计，量级而非保证）：
+  rules    ~15-25 分钟（全语料回放新旧规则 + 扫日志）
+  equiv    ~1 分钟（1 万局 slim 对照 RoundEngine）
+  speed    ~2.5 分钟（性能核 60s + 能效核 60s + 启动）
+  seatbias ~60 分钟（2v2 1350 种子 + 1v3 2160 种子，各约 30 分钟）
+  simcal   ~10-15 分钟（真实语料扫描 + arena2 自对局 400 种子）
+  gap      ~5-10 分钟
+  mccal    ~5-8 分钟（72 组参数 x 1500 局 + 补足测量 11 轮 x 3 万局 slim 自对弈）
+  offline  ~30-60 分钟（<=1800 个决策点 x 512 局 x 多候选）
+  合计     约 2.5-3.5 小时
+=== [10:21:45] 开始：sim_calibrate（full） ===
+扫描真实日志……
+  已扫 1000 / 3478
+  已扫 2000 / 3478
+  已扫 3000 / 3478
+  已扫 3478 / 3478
+跑 arena2 自对局 400 个种子……
+
+=== arena2自对局（局数=3200，胡牌数=3191） ===
+  流局率 0.003 ± 0.002
+  每局chi次数 2.364 ± 0.051 (n=3200)
+  每局peng次数 2.641 ± 0.055 (n=3200)
+  每局gang次数 0.168 ± 0.014 (n=3200)
+  累计胡牌率(庄) 第6/10/14摸: 0.076±0.009, 0.206±0.014, 0.242±0.015
+  累计胡牌率(闲) 第6/10/14摸: 0.090±0.006, 0.215±0.008, 0.248±0.009
+  番数分布 1:0.69  2:0.28  4:0.03  8:0.00  16+:0.00
+  占胡比例 baotou:0.30  qidui:0.02  piao:0.01  gang_kai:0.00  four_white:0.00
+
+=== 高手（局数=8026，胡牌数=3612） ===
+  流局率 0.002 ± 0.001
+  每局chi次数 2.357 ± 0.033 (n=8026)
+  每局peng次数 2.289 ± 0.032 (n=8026)
+  每局gang次数 0.237 ± 0.011 (n=8026)
+  累计胡牌率(庄) 第6/10/14摸: 0.120±0.011, 0.253±0.014, 0.295±0.015
+  累计胡牌率(闲) 第6/10/14摸: 0.087±0.006, 0.218±0.008, 0.261±0.009
+  番数分布 1:0.68  2:0.27  4:0.04  8:0.00  16+:0.00
+  占胡比例 baotou:0.31  qidui:0.02  piao:0.01  gang_kai:0.02  four_white:0.00
+
+=== 我们(当前)（局数=6798，胡牌数=2310） ===
+  流局率 0.001 ± 0.001
+  每局chi次数 2.165 ± 0.034 (n=6798)
+  每局peng次数 2.211 ± 0.035 (n=6798)
+  每局gang次数 0.222 ± 0.012 (n=6798)
+  累计胡牌率(庄) 第6/10/14摸: 0.111±0.013, 0.248±0.018, 0.292±0.019
+  累计胡牌率(闲) 第6/10/14摸: 0.080±0.007, 0.196±0.010, 0.241±0.010
+  番数分布 1:0.71  2:0.26  4:0.03  8:0.00  16+:0.00
+  占胡比例 baotou:0.28  qidui:0.01  piao:0.01  gang_kai:0.02  four_white:0.00
+
+=== 我们(以前)（局数=12694，胡牌数=4566） ===
+  流局率 0.005 ± 0.001
+  每局chi次数 2.427 ± 0.026 (n=12694)
+  每局peng次数 2.027 ± 0.025 (n=12694)
+  每局gang次数 0.211 ± 0.008 (n=12694)
+  累计胡牌率(庄) 第6/10/14摸: 0.114±0.009, 0.239±0.012, 0.283±0.013
+  累计胡牌率(闲) 第6/10/14摸: 0.074±0.004, 0.188±0.006, 0.227±0.007
+  番数分布 1:0.82  2:0.17  4:0.01  8:0.00  16+:0.00
+  占胡比例 baotou:0.16  qidui:0.01  piao:0.01  gang_kai:0.01  four_white:0.00
+
+完整机器可读结果见 /Users/yuanye/coding_workspace/mahjong/reports/sim_calibrate.json（阶段二 tools/mc_check.py calibrate 的拟合标靶）
+=== [sim_calibrate] 成功，耗时 1682s ===
+=== [10:49:47] 开始：gap_breakdown（full） ===
+  已扫 500 / 3478
+  已扫 1000 / 3478
+  已扫 1500 / 3478
+  已扫 2000 / 3478
+  已扫 2500 / 3478
+  已扫 3000 / 3478
+  已扫 3478 / 3478
+共 110072 条 (房间,座位,局) 记录
+
+--- 方向：用房间哈希偶数选高手/奇数半分解（高手=9/10 名候选人通过筛选）---
+  本方向滤掉的候选高手（选人半里 diff<=0 或 n<30）：放假了偷偷训练(diff=-1.35,n=478)
+格子(财神/副露)         局数(我)   局数(高手)         分差 |         做庄        胡得少        胡得小        输得多
+0白/0组               725     1019      -0.50 |      +0.01      +0.11      -0.13      -0.49
+               95%CI（按房间聚类 bootstrap）        [-1.63,+0.55] [-0.04,+0.08] [-0.59,+0.90] [-0.78,+0.39] [-0.97,-0.01]
+0白/1组              1136     1761      -1.49 |      -0.00      -0.88      -0.21      -0.39
+               95%CI（按房间聚类 bootstrap）        [-2.27,-0.87] [-0.04,+0.06] [-1.48,-0.33] [-0.39,-0.05] [-0.86,+0.06]
+0白/2+组             1150     1702      -0.21 |      -0.02      -0.31      -0.03      +0.15
+               95%CI（按房间聚类 bootstrap）        [-1.12,+0.66] [-0.11,+0.03] [-1.16,+0.58] [-0.38,+0.32] [-0.16,+0.51]
+1白/0组               362      467      -0.88 |      +0.05      -0.13      -0.81      +0.01
+               95%CI（按房间聚类 bootstrap）        [-2.79,+1.33] [-0.11,+0.30] [-1.75,+1.64] [-1.82,+0.27] [-0.59,+0.57]
+1白/1组               510      797      -0.11 |      +0.01      +0.27      -0.49      +0.09
+               95%CI（按房间聚类 bootstrap）        [-1.55,+1.57] [-0.09,+0.19] [-0.95,+1.77] [-1.17,+0.03] [-0.30,+0.41]
+1白/2+组              454      686      -0.51 |      -0.04      +0.23      -0.41      -0.29
+               95%CI（按房间聚类 bootstrap）        [-2.65,+1.75] [-0.27,+0.15] [-1.72,+2.31] [-1.32,+0.39] [-0.87,+0.22]
+2白/1组                85      147      -5.28 |      -0.22      -3.24      -1.03      -0.78
+               95%CI（按房间聚类 bootstrap）        [-9.72,-0.27] [-0.98,+0.94] [-7.40,+0.37] [-3.82,+1.23] [-1.84,+0.08]
+对账：本方向所有格子里 |四项之和 − 实际分差| 的最大值 = 7.88e-15（验收线 < 0.01）
+
+--- 方向：用房间哈希奇数选高手/偶数半分解（高手=9/10 名候选人通过筛选）---
+  本方向滤掉的候选高手（选人半里 diff<=0 或 n<30）：铳一色14(diff=-0.00,n=400)
+格子(财神/副露)         局数(我)   局数(高手)         分差 |         做庄        胡得少        胡得小        输得多
+0白/0组               650      798      -0.35 |      +0.01      -0.31      -0.02      -0.03
+               95%CI（按房间聚类 bootstrap）        [-1.55,+1.11] [-0.07,+0.08] [-1.30,+0.82] [-0.41,+0.48] [-0.76,+0.87]
+0白/1组              1110     1428      +0.00 |      -0.00      -0.05      -0.28      +0.34
+               95%CI（按房间聚类 bootstrap）        [-1.07,+1.09] [-0.05,+0.03] [-0.94,+1.01] [-0.52,-0.06] [-0.04,+0.63]
+0白/2+组             1123     1383      +0.10 |      -0.00      +0.21      +0.04      -0.14
+               95%CI（按房间聚类 bootstrap）        [-1.07,+1.39] [-0.08,+0.04] [-0.73,+1.35] [-0.26,+0.35] [-0.51,+0.23]
+1白/0组               319      330      +0.18 |      -0.00      +0.58      -0.36      -0.03
+               95%CI（按房间聚类 bootstrap）        [-2.32,+2.75] [-0.21,+0.26] [-1.41,+2.54] [-1.88,+0.87] [-0.72,+0.61]
+1白/1组               501      661      -1.04 |      -0.00      -0.49      -0.50      -0.04
+               95%CI（按房间聚类 bootstrap）        [-2.41,+0.34] [-0.14,+0.13] [-1.81,+1.02] [-1.15,-0.01] [-0.52,+0.44]
+1白/2+组              454      541      -0.52 |      +0.00      -0.82      +0.33      -0.03
+               95%CI（按房间聚类 bootstrap）        [-3.25,+2.75] [-0.18,+0.15] [-3.16,+1.93] [-0.39,+1.39] [-0.44,+0.39]
+2白/1组                77       97      -6.64 |      +2.42      +1.20     -10.65      +0.38
+               95%CI（按房间聚类 bootstrap）        [-24.85,+6.26] [-1.17,+12.36] [-8.39,+11.30] [-35.81,+2.03] [-0.51,+1.17]
+对账：本方向所有格子里 |四项之和 − 实际分差| 的最大值 = 8.33e-15（验收线 < 0.01）
+
+完整明细见 /Users/yuanye/coding_workspace/mahjong/reports/gap_breakdown_detail.txt
+读法：两个方向的数字应该大致一致（差异在 bootstrap CI 范围内）——如果明显不一致，说明存在选择偏差，结论要打折扣。
+=== [gap_breakdown] 成功，耗时 39s ===
+=== [10:50:26] 开始：mc_check calibrate(slim 策略拟合 + 胡牌率补足)（full） ===
+=== mc_check calibrate（slim + 胡牌率补足；网格 108 组 x 1500 局，补足测量 30000 局 x (1+6+3) 轮，290s；明细 reports/mc_calibrate.json） ===
+策略参数：{'p_peng': 0.7, 'p_chi': 0.7, 'p_flat': 0.1, 'noise': 0.3, 'piao_prob': 0.3}  -> 已写 models/mc_opp_params.json
+补足前策略自己：第6/10/14摸累计 庄 0.067/0.190/0.250 闲 0.070/0.184/0.235；2番+ 0.134；流局 0.0161
+补足后最终验收（新种子实测；虚拟自摸占胡 21.5%）：
+指标                       实测       目标  <=3pp
+cum_dealer@6摸         0.111    0.120      是
+cum_nondealer@6摸      0.079    0.087      是
+cum_dealer@10摸        0.229    0.253      是
+cum_nondealer@10摸     0.197    0.218      是
+cum_dealer@14摸        0.268    0.295      是
+cum_nondealer@14摸     0.235    0.261      是
+2番+占胡                 0.317    0.319      是
+流局率                  0.0086   0.0024   （报告）
+每局chi次数                2.14     2.36 （报告；补足让对局更早结束）
+每局peng次数               2.11     2.29 （报告；补足让对局更早结束）
+每局gang次数               0.17     0.24 （报告；补足让对局更早结束）
+拟合用目标曲线=高手曲线下移（@20摸 庄闲各 -2.5pp，让庄+3×闲<=1-流局率）；验收仍按原始高手曲线判 <=3pp
+注意：第 12,14,16,18,20 摸的目标 庄+3×闲 累计胡牌率之和 >1（高手这条曲线是'高手座位'的，四家都按高手水平不可能同时满足），该处偏差有结构性下限。
+全部 <=3pp：是（新种子实测）
+=== [mc_check calibrate(slim 策略拟合 + 胡牌率补足)] 成功，耗时 292s ===
+=== [10:55:18] 开始：mc_offline 全量（full） ===
+  抽点：已扫 200 / 3478 个文件，桶：{'master/hu_piao': 111, 'master/joker_discard': 215, 'master/menqing_route': 177, 'ours/hu_piao': 221, 'ours/joker_discard': 300, 'ours/menqing_route': 300}
+  抽点：已扫 400 / 3478 个文件，桶：{'master/hu_piao': 229, 'master/joker_discard': 300, 'master/menqing_route': 300, 'ours/hu_piao': 300, 'ours/joker_discard': 300, 'ours/menqing_route': 300}
+决策点 1800 个：{'ours/joker_discard': 300, 'master/joker_discard': 300, 'master/hu_piao': 300, 'master/menqing_route': 300, 'ours/hu_piao': 300, 'ours/menqing_route': 300}
+缓存命中 0，待算 1800（每点约 7 候选 x 路线 x 512 局推演）
+  MC：50 / 1800（124s）
+  MC：100 / 1800（236s）
+  MC：150 / 1800（355s）
+  MC：200 / 1800（473s）
+  MC：250 / 1800（604s）
+  MC：300 / 1800（716s）
+  MC：350 / 1800（856s）
+  MC：400 / 1800（985s）
+  MC：450 / 1800（1097s）
+  MC：500 / 1800（1212s）
+  MC：550 / 1800（1345s）
+  MC：600 / 1800（1476s）
+  MC：650 / 1800（1525s）
+  MC：700 / 1800（1582s）
+  MC：750 / 1800（1632s）
+  MC：800 / 1800（1690s）
+  MC：850 / 1800（1742s）
+  MC：900 / 1800（1805s）
+  MC：950 / 1800（1888s）
+  MC：1000 / 1800（1980s）
+  MC：1050 / 1800（2070s）
+  MC：1100 / 1800（2164s）
+  MC：1150 / 1800（2252s）
+  MC：1200 / 1800（2345s）
+  MC：1250 / 1800（2397s）
+  MC：1300 / 1800（2451s）
+  MC：1350 / 1800（2502s）
+  MC：1400 / 1800（2558s）
+  MC：1450 / 1800（2614s）
+  MC：1500 / 1800（2663s）
+  MC：1550 / 1800（2756s）
+  MC：1600 / 1800（2850s）
+  MC：1650 / 1800（2947s）
+  MC：1700 / 1800（3071s）
+  MC：1750 / 1800（3191s）
+  MC：1800 / 1800（3293s）
+=== mc_offline 汇总（明细 /Users/yuanye/coding_workspace/mahjong/reports/mc_offline.tsv） ===
+总耗时 3293s（含抽点；重跑只补算新增点）；对手参数：策略参数 {'p_peng': 0.7, 'p_chi': 0.7, 'p_flat': 0.1, 'noise': 0.3, 'piao_prob': 0.3} + 胡牌率补足表
+有效点 1800，出错 0
+  ours   joker_discard  n= 300  MC 显著推翻   5.3%  平均得分差(MC最优-真实) +0.172  (显著点上 +4.077)
+  ours   hu_piao        n= 300  MC 显著推翻  13.3%  平均得分差(MC最优-真实) +1.123  (显著点上 +7.972)
+  ours   menqing_route  n= 300  MC 显著推翻   4.7%  平均得分差(MC最优-真实) +0.118  (显著点上 +2.816)
+  master joker_discard  n= 300  MC 显著推翻   3.3%  平均得分差(MC最优-真实) -0.084  (显著点上 +2.745)
+  master hu_piao        n= 300  MC 显著推翻   2.0%  平均得分差(MC最优-真实) +0.127  (显著点上 +4.245)
+  master menqing_route  n= 300  MC 显著推翻   4.3%  平均得分差(MC最优-真实) +0.096  (显著点上 +2.891)
+前 10 组（财神数,副露数,离胡距离,墙剩余档,局号档）按显著推翻点数排序：
+  财神0 副露0 距离3 w>=70  r1-2   n=  89  推翻    6 (  6.7%)  平均差 +0.209
+  财神0 副露0 距离3 w>=70  r6-8   n=  66  推翻    5 (  7.6%)  平均差 +0.248
+  财神2 副露2 距离0 50-69  r3-5   n=  21  推翻    5 ( 23.8%)  平均差 +1.912
+  财神0 副露0 距离3 w>=70  r3-5   n=  95  推翻    4 (  4.2%)  平均差 -0.097
+  财神1 副露0 距离2 w>=70  r1-2   n=  52  推翻    4 (  7.7%)  平均差 +0.240
+  财神0 副露0 距离2 w>=70  r1-2   n=  52  推翻    4 (  7.7%)  平均差 +0.549
+  财神2 副露2 距离0 50-69  r6-8   n=  23  推翻    4 ( 17.4%)  平均差 +1.072
+  财神1 副露2 距离0 50-69  r6-8   n=  23  推翻    3 ( 13.0%)  平均差 +1.367
+  财神2 副露1 距离0 50-69  r6-8   n=  20  推翻    3 ( 15.0%)  平均差 +1.403
+  财神2 副露2 距离0 50-69  r1-2   n=   8  推翻    3 ( 37.5%)  平均差 +1.107
+路线成牌率（slim 推演里 seat0 按路线走，全部起手 / 起手有财神；只报告不拟合）：
+  R_A 胡牌率 0.193 均番 1.16 | 有财神起手 胡牌率 0.348 均番 1.23
+  R_B 胡牌率 0.063 均番 2.05 | 有财神起手 胡牌率 0.146 均番 2.00
+  R_C 胡牌率 0.063 均番 2.00 | 有财神起手 胡牌率 0.124 均番 2.00
+  R_D 胡牌率 0.040 均番 3.67 | 有财神起手 胡牌率 0.079 均番 3.71
+  真实 高手         每座位胡牌率 0.275 均番(按分布估) 1.43
+  真实 我们(当前)     每座位胡牌率 0.259 均番(按分布估) 1.36
+=== [mc_offline 全量] 成功，耗时 3297s ===
+
+跑完：2026年10月 3日 星期六 11时50分15秒 CST；汇总 reports/phase2_summary.txt，各步明细文件路径见上面对应段落（reports/ 或 tools/.cache/）。

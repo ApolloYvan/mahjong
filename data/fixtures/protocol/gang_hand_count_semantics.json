@@ -1,0 +1,122 @@
+{
+  "provenance": "derived_from_real_rejection_log",
+  "note": "case 1/3/4 的 hand/melds/wall_remaining 字段从 logs/2026-09-22.jsonl 真实 action_rejected（gang）记录脱敏抽取（剥离 decision_id/game_id/seat/round_no/时间戳，只保留驱动判定逻辑必需的字段）；case 2/5/6/7 为本次会话按同一真实场景手工构造的合成正反例（分别覆盖『凑够4张应放行』『财神』『墙尾<=20』『抓打圈受限』，这些场景客户端本就会拦截，不会出现在真实拒绝日志里）。",
+  "rule_reference": "P0 修复：生产快照 my_hand 包含 drawn_tile 本身，暗杠判定必须是 hand.count(drawn)>=4，不是 >=3。旧版 >=3 把『手牌含摸到的这张共 3 张（摸牌前只 2 张）』误判为『摸牌前已 3 张+摸到 1 张=4 张』，对生产环境提交了非法暗杠，被 409 cannot gang <tile> 拒绝（docs/refactor/LIVE_TEST_001.md §3 的『非法 gang 32』即此 bug）。",
+  "cases": [
+    {
+      "id": "real_reject_count3_no_melds",
+      "description": "真实拒绝案例：14 张手（无副露），摸到的 drawn_tile 在 my_hand 中总数=3（摸牌前只有 2 张）——不得暗杠，choose_gang 必须返回 None。",
+      "snapshot": {
+        "drawn_tile": "4b",
+        "my_hand": ["1b", "7w", "3t", "4b", "1w", "8w", "5b", "6w", "8b", "5w", "2w", "1b", "4b", "4b"],
+        "seat": 3,
+        "wall_remaining": 68,
+        "melds": [[], [], [], []]
+      },
+      "expected_choose_gang": null,
+      "note": "原始记录：hand 里 4b 实际出现 3 次（此处保留真实脱敏记录，drawn_tile=4b 在 my_hand 中 count=3），对应真实 409 cannot gang 4b。"
+    },
+    {
+      "id": "synthetic_count4_allows_gang",
+      "description": "正例（合成）：与 real_reject_count3_no_melds 同形态，但摸牌前已有 3 张同种牌，摸到第 4 张——my_hand 中 drawn_tile 总数=4，应当允许暗杠。",
+      "snapshot": {
+        "drawn_tile": "4b",
+        "my_hand": ["1b", "7w", "3t", "4b", "1w", "8w", "5b", "6w", "8b", "5w", "2w", "4b", "4b", "4b"],
+        "seat": 3,
+        "wall_remaining": 68,
+        "melds": [[], [], [], []]
+      },
+      "expected_choose_gang": {"action": "gang", "tile": "4b"}
+    },
+    {
+      "id": "real_reject_count3_with_8tile_two_melds",
+      "description": "真实拒绝案例：已有 2 组副露（meld_groups=2，摸牌前手牌应有 13-6=7 张，摸牌后 8 张），drawn_tile 在 my_hand 中总数=3——不得暗杠。",
+      "snapshot": {
+        "drawn_tile": "6b",
+        "my_hand": ["6b", "8b", "6b", "3b", "2b", "2b", "8b", "6b"],
+        "seat": 2,
+        "wall_remaining": 64,
+        "melds": [
+          [{"kind": "chi", "tiles": ["3b", "5b", "4b"]}],
+          [],
+          [{"kind": "chi", "tiles": ["3t", "4t", "2t"]}, {"kind": "peng", "tiles": ["南", "南", "南"]}],
+          [{"kind": "peng", "tiles": ["2t", "2t", "2t"]}, {"kind": "chi", "tiles": ["5t", "6t", "4t"]}]
+        ]
+      },
+      "expected_choose_gang": null
+    },
+    {
+      "id": "real_reject_count3_with_11tile_one_meld",
+      "description": "真实拒绝案例：已有 1 组副露（meld_groups=1，摸牌前手牌应有 13-3=10 张，摸牌后 11 张），drawn_tile 在 my_hand 中总数=3——不得暗杠。",
+      "snapshot": {
+        "drawn_tile": "1b",
+        "my_hand": ["1b", "6t", "白", "5t", "4t", "5t", "1b", "4b", "6t", "3b", "1b"],
+        "seat": 1,
+        "wall_remaining": 60,
+        "melds": [
+          [{"kind": "chi", "tiles": ["1b", "3b", "2b"]}],
+          [{"kind": "chi", "tiles": ["7t", "8t", "9t"]}],
+          [{"kind": "chi", "tiles": ["5b", "6b", "4b"]}],
+          [{"kind": "chi", "tiles": ["7b", "8b", "9b"]}]
+        ]
+      },
+      "expected_choose_gang": null
+    },
+    {
+      "id": "synthetic_joker_never_gangs_even_at_count4",
+      "description": "合成反例：财神（JOKER/白）即使摸满 4 张，也绝不允许暗杠（官方硬规则：财神不可被吃/碰/杠/胡，胡牌单独走爆头路径）。客户端会拦截，不会出现在真实拒绝日志里。",
+      "snapshot": {
+        "drawn_tile": "白",
+        "my_hand": ["白", "白", "白", "白", "1w", "2w", "3w", "4w", "5w", "6w", "7w", "8w", "9w"],
+        "seat": 0,
+        "wall_remaining": 60,
+        "melds": [[], [], [], []]
+      },
+      "expected_choose_gang": null
+    },
+    {
+      "id": "synthetic_wall_tail_le20_forbids_even_at_count4",
+      "description": "合成反例：wall_remaining<=20（墙尾）时即使凑满 4 张也不得暗杠，与 responses.choose_gang 的墙尾门槛统一。",
+      "snapshot": {
+        "drawn_tile": "4b",
+        "my_hand": ["4b", "4b", "4b", "4b", "1w", "2w", "3w", "5w", "6w", "7w", "8w", "9w", "1t"],
+        "seat": 0,
+        "wall_remaining": 20,
+        "melds": [[], [], [], []]
+      },
+      "expected_choose_gang": null
+    },
+    {
+      "id": "synthetic_catch_restricted_count3_forbids_gang_via_choose_action",
+      "description": "合成反例：抓打圈受限方（god.catch_play 且 god_discarder_seat!=己方座位）+ drawn_tile 在 my_hand 中总数=3（摸牌前只 2 张，不够暗杠）——choose_action 的 catch_restricted 分支必须打出刚摸到的牌，不得暗杠。这是 mj.bot.choose_action 内部独立的杠分支（catch_restricted 下允许打杠者自己暗杠，但同样需要 count>=4），必须与 responses.choose_gang 同步修复，否则该分支单独残留 >=3 的 bug。",
+      "snapshot": {
+        "phase": "draw",
+        "turn": 0,
+        "drawn_tile": "4b",
+        "my_hand": ["4b", "4b", "4b", "1w", "2w", "3w", "5w", "6w", "7w", "8w", "9w", "1t", "2t"],
+        "seat": 0,
+        "dealer": 0,
+        "wall_remaining": 60,
+        "god": {"catch_play": true, "god_discarder_seat": 2},
+        "melds": [[], [], [], []]
+      },
+      "expected_choose_action": {"action": "discard", "tile": "4b"}
+    },
+    {
+      "id": "synthetic_catch_restricted_count4_allows_gang_via_choose_action",
+      "description": "正例（合成）：抓打圈受限方，但 drawn_tile 在 my_hand 中总数=4（摸牌前已有 3 张）——打杠者自己（即使是抓打圈受限方）仍可暗杠，choose_action 应返回 gang。用于对照 count3 反例，证明 >=4 门槛本身没有被过度收紧。",
+      "snapshot": {
+        "phase": "draw",
+        "turn": 0,
+        "drawn_tile": "4b",
+        "my_hand": ["4b", "4b", "4b", "4b", "1w", "2w", "3w", "5w", "6w", "7w", "8w", "9w", "1t"],
+        "seat": 0,
+        "dealer": 0,
+        "wall_remaining": 60,
+        "god": {"catch_play": true, "god_discarder_seat": 2},
+        "melds": [[], [], [], []]
+      },
+      "expected_choose_action": {"action": "gang", "tile": "4b"}
+    }
+  ]
+}
