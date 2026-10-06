@@ -196,6 +196,7 @@ caffeinate -dims sh -c 'until python3 -m mj.bot --wait; do sleep 10; done'
 
 - 进程内也会自动重启：`--wait` 状态机遇到连续网络/命令错误时，30 秒后在进程内重来，不退出。
 - 吃碰窗口静默（`MJ_RESPONSE_QUIET`）默认关闭：10/05 实测未达标，比赛不要打开。
+- v1.3 起状态拉取默认严格排队（吃碰少丢一半）。比赛中如果出牌超时明显变多（`session_health` 每房 > 10 次），用 `MJ_PACE_RESET_SLOTS=8` 重启 bot 退回旧行为。
 
 **机器**：插电；关闭低电量模式、自动更新和重启；合盖不休眠。比赛期间不在这台机器上跑对战平台或任何重计算——会和 bot 抢 CPU，吃碰窗口只有 1 秒。
 

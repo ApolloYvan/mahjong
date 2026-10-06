@@ -3,6 +3,7 @@
 #   bash tools/screen_joker.sh screen                 # 8 个候选 × 300 种子（种子 20000 起），约 2 小时
 #   bash tools/screen_joker.sh confirm J1_bt_after J5_combo   # 入围者 × 600 个全新种子（50000 起），每个约 30 分钟
 #   bash tools/screen_joker.sh summary                # 只出汇总表
+#   JOKER_DIR=tools/overlays/joker2 bash tools/screen_joker.sh screen   # 换一组候选（B 永远是当前 models/weights.json）
 # 事先定好的采用规则：confirm 的全新种子上 A−B 均值 > 0 且 95% 区间下界 > −0.05，
 # 并且 screen+confirm 合并后的区间下界 > 0，胜率下降不超过 1 个百分点（历史教训：调高爆头权重曾让实战胜率从 28.4% 掉到 24.1%）。
 set -u
@@ -15,7 +16,7 @@ MODE=${1:-summary}
 [ $# -gt 0 ] && shift
 
 run() {   # run 前缀 名字 种子数 起始种子 分钟上限
-    f=tools/overlays/joker/$2.json
+    f=${JOKER_DIR:-tools/overlays/joker}/$2.json
     [ -f "$f" ] || { echo "没有 $f"; return; }
     echo "=== [$(date +%H:%M)] $1 $2（$3 种子，起始 $4）==="
     caffeinate -i python3 tools/arena2.py ab --a "$f" --matches "$3" --seed "$4" --jobs "${MJ_JOBS:-6}" \
@@ -24,7 +25,7 @@ run() {   # run 前缀 名字 种子数 起始种子 分钟上限
 }
 
 if [ "$MODE" = "screen" ]; then
-    for f in tools/overlays/joker/*.json; do
+    for f in ${JOKER_DIR:-tools/overlays/joker}/*.json; do
         run scr "$(basename "$f" .json)" 300 20000 20
     done
 elif [ "$MODE" = "confirm" ]; then

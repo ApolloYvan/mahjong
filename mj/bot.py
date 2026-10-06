@@ -1007,6 +1007,9 @@ def _play_game_loop(api, game_id, log, rules, observer):
     quiet_wid = None      # 确认"这个窗口没我们的事了"的窗口：成功提交响应 / 不在 responding_seats。409 不算（视图可能已过期）
     quiet_until = 0.0
     quiet_n = 0           # 本场实际静默次数（随 state_request_metric 落盘，验收用）
+    # 两次拉取之间的最小间隔：默认 POLL_MIN_GAP（0.3 秒）。2026-10-06 起可以用权重覆盖 poll_min_gap 按房设置
+    # （--ab 按房随机 A/B 时 thread_weights_overlay 只作用于本房的对局线程），用来实测"缩短窗口反应时间"。
+    poll_min_gap = float(load_weights().get("poll_min_gap", POLL_MIN_GAP))
 
     def _quiet_target():
         if prev_wid is None or prev_wid != quiet_wid:
@@ -1023,7 +1026,7 @@ def _play_game_loop(api, game_id, log, rules, observer):
                 wake.clear()          # 丢掉窗口内别家过/超时触发的唤醒；关窗事件一定在静默结束之后才来
                 wake.wait(0.3)
         wake.clear()
-        gap = POLL_MIN_GAP - (time.monotonic() - last_poll)
+        gap = poll_min_gap - (time.monotonic() - last_poll)
         if gap > 0:
             time.sleep(gap)
         last_poll = time.monotonic()

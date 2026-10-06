@@ -4,6 +4,7 @@ import re
 import socket
 import ssl
 import threading
+import os
 import time
 import urllib.error
 import urllib.request
@@ -66,6 +67,11 @@ def is_transient(error):
     return True
 
 
+# 严格排队（40 槽 ≈ 2.9 秒才重开）。10/06 实测 13 房 1040 局：想吃碰杠却超时 0.133→0.057/局、响应窗口超时 7.9%→3.0%；
+# 代价是出牌超时约多 0.03 次/局。按平台测得每丢一次吃碰约 1.9 分，净效果约 +0.1 分/局。回退旧行为：MJ_PACE_RESET_SLOTS=8。
+PACE_RESET_SLOTS = float(os.environ.get("MJ_PACE_RESET_SLOTS", "40"))
+
+
 class MahjongApi:
     # 令牌级全局限速：10 个对局线程共用一个用户配额（/state 16/s/user），
     # 超限触发 429 重试链（0.4s backoff）会把 state 延迟抬到 422ms×k——
@@ -103,7 +109,10 @@ class MahjongApi:
         with self._pacer["lock"]:
             now = time.monotonic()
             slot = max(now, self._pacer["next_slot"])
-            if slot - now > self.pace_interval * 8:
+            # 2026-10-06：旧规则"排队超过 8 个槽位就从当前时刻重开"会让新请求和已排好的请求两股并发，
+            # 瞬时速率翻倍 → 服务端 429（10/05 两次三房实测 860~2868 次，每次 0.4 秒退避）。
+            # 排队深到 PACE_RESET_SLOTS 个槽位才重开（默认 40 ≈ 2.9 秒，即严格排队；8 = 旧行为）。
+            if slot - now > self.pace_interval * PACE_RESET_SLOTS:
                 slot = now
             self._pacer["next_slot"] = slot + self.pace_interval
         wait = slot - time.monotonic()

@@ -9,6 +9,7 @@ import argparse
 import glob
 import json
 import os
+import re
 import sys
 from collections import Counter, defaultdict
 from multiprocessing import Pool
@@ -32,7 +33,26 @@ def q(a, x):
     return a[int(x * (len(a) - 1))] if a else float("nan")
 
 
-def log_metrics(since, until):
+ROOM_RX = re.compile(r'"(?:game_id|room_id)": "(a_[0-9a-f]+)')
+
+
+def ab_labels(since, until):
+    """bot --ab 模式下每房分到的组：{room: "A"/"B"}（日志里的 ab_assign 事件）。"""
+    out = {}
+    for path in sorted(glob.glob("logs/2026-*.jsonl")):
+        with open(path, encoding="utf-8", errors="replace") as f:
+            for line in f:
+                if '"ab_assign"' not in line:
+                    continue
+                t = line[10:29]
+                if t < since[:19] or (until and t > until[:19]):
+                    continue
+                p = json.loads(line)["payload"]
+                out[p["room_id"]] = p["label"]
+    return out
+
+
+def log_metrics(since, until, rooms=None):
     fetch, pace, per_sec = [], [], Counter()
     n429, notifier_exit, fallback = 0, 0, 0
     quiet = {}
@@ -46,8 +66,16 @@ def log_metrics(since, until):
                 t = line[10:36] if line.startswith('{"time": "') else ""
                 if t[:19] < since[:19] or (until and t[:19] > until[:19]):
                     continue
+                if rooms is not None and '"state_request_metric"' not in line:
+                    m = ROOM_RX.search(line)
+                    if m and m.group(1) not in rooms:
+                        continue
                 if '"state_request_metric"' in line:
                     p = json.loads(line)["payload"]
+                    if p.get("n429"):
+                        n429 = max(n429, p["n429"])      # 进程累计，两组共用，只能看总数
+                    if rooms is not None and p["game_id"].split("_r1")[0] not in rooms:
+                        continue
                     fetch.append(p["elapsed_ms"])
                     per_sec[t[:19]] += 1
                     if p.get("pace_ms") is not None:
@@ -113,15 +141,20 @@ def main():
     ap.add_argument("--since", required=True, help="UTC，如 2026-10-06T01:00（bot 启动时刻）")
     ap.add_argument("--until", default=None)
     ap.add_argument("--jobs", type=int, default=6)
+    ap.add_argument("--arm", choices=["A", "B"], default=None, help="bot --ab 模式：只看分到这一组的房间")
     args = ap.parse_args()
     first = room_first_seen()
     rooms = {r for r, t in first.items() if t >= args.since and (not args.until or t <= args.until)}
+    if args.arm:
+        labels = ab_labels(args.since, args.until)
+        rooms = {r for r in rooms if labels.get(r) == args.arm}
+        print("--arm %s：%d 个房间 %s" % (args.arm, len(rooms), sorted(rooms)))
     files = [p for p in glob.glob("models/events/*.json") if os.path.basename(p).split("_r1")[0] in rooms]
     tot = Counter()
     with Pool(args.jobs, initializer=_init) as pool:
         for c in pool.imap_unordered(scan, files, chunksize=2):
             tot.update(c)
-    lm = log_metrics(args.since, args.until)
+    lm = log_metrics(args.since, args.until, rooms if args.arm else None)
     n = max(1, tot["rounds"])
     lost = {w: sum(v for k, v in tot.items() if isinstance(k, tuple) and k[2] == "timeout" and k[3] == w)
             for w in ("chi", "peng", "gang")}
