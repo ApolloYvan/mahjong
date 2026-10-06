@@ -245,7 +245,7 @@ class DecisionLog:
         })
 
     def state_request_metric(self, *, game_id, requested_seq, returned_seq, trigger,
-                             elapsed_ms, pending=False, gap=False, state_hash=None):
+                             elapsed_ms, pending=False, gap=False, state_hash=None, **extra):
         """P1 修复：notify 驱动状态获取的紧凑度量——不记录完整快照，只记
         录足以统计 notify 利用率/seq gap/watchdog 次数的字段。``trigger``
         取值 'notify'/'watchdog'/'recovery'，分别对应"由 notify 触发的
@@ -259,6 +259,7 @@ class DecisionLog:
             "pending": bool(pending),
             "gap": bool(gap),
             "state_hash": state_hash,
+            **extra,
         })
 
     def round_end(self, game_id, result):

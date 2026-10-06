@@ -73,6 +73,7 @@ class MahjongApi:
     _pacers = {}
     _pacer_guard = threading.Lock()
     DEFAULT_PACE_INTERVAL = 1.0 / 14.0
+    count_429 = 0
 
     def __init__(self, server, token, timeout=35, verify_tls=False, pace_interval=None):
         self.server = server.rstrip("/")
@@ -139,12 +140,17 @@ class MahjongApi:
         while True:
             try:
                 if pace:
+                    pace_started = time.monotonic()
                     self._pace()
+                    # 2026-10-05 诊断：排队等待（本地限速）与 HTTP 往返分开记，见 docs/EXPERT_Q_LATENCY.md
+                    self._local.last_pace_ms = (time.monotonic() - pace_started) * 1000
                 conn = self._connection()
                 conn.timeout = timeout if timeout is not None else self.timeout
                 conn.request(method, path, body=data, headers=headers)
                 response = conn.getresponse()
                 raw = response.read().decode("utf-8")
+                if response.status == 429:
+                    MahjongApi.count_429 += 1   # 诊断计数（进程内累计），随 state_request_metric 落盘
                 if response.status == 429 and attempt < retries:
                     attempt += 1
                     time.sleep(backoff)

@@ -290,7 +290,7 @@ class AsyncDecisionLog:
         })
 
     def state_request_metric(self, *, game_id, requested_seq, returned_seq, trigger,
-                             elapsed_ms, pending=False, gap=False, state_hash=None):
+                             elapsed_ms, pending=False, gap=False, state_hash=None, **extra):
         self._enqueue("state_request_metric", {
             "game_id": game_id,
             "requested_seq": requested_seq,
@@ -300,6 +300,7 @@ class AsyncDecisionLog:
             "pending": bool(pending),
             "gap": bool(gap),
             "state_hash": state_hash,
+            **extra,
         })
 
     def round_end(self, game_id, result):

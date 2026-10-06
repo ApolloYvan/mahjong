@@ -517,6 +517,20 @@ def _choose_action_production(snapshot, rules=None, gang_open=False, no_gang=Fal
 
 POLL_INTERVAL = 0.2
 POLL_MIN_GAP = 0.3
+# 2026-10-05 响应窗口静默（docs/EXPERT_Q_LATENCY.md + 外部评审方案 A）：本场的响应窗口我们已经没事可做
+# （已提交 / 已标记陈旧 / 已在 responded / 不在 responding_seats）时，静默到"首次看到该窗口的那次拉取的
+# 上一次拉取的发出时刻 + RESPONSE_QUIET 秒"。窗口固定走满 1 秒，所以静默一定在关窗之前结束，不会漏掉下一个窗口；
+# 省下的 /state 限速额度（每令牌 16 次/秒，10 场共用）留给真正要响应的窗口。0 = 关闭（回退只改环境变量）。
+# 10/05 两次三房实测：静默生效（40 次/局），但丢失的吃碰只从 0.155 降到 0.113/局、拉取量仅降 7%，
+# 出牌超时反而 0→5 次/240 局（疑似窗口并非总是走满 1 秒）。按事先约定：未达标 → 默认关闭，v1.1 不带。
+RESPONSE_QUIET = float(os.environ.get("MJ_RESPONSE_QUIET", "0"))
+
+
+def _window_id(snapshot):
+    """响应窗口身份：同一窗口内不变（不含 seq / responding_seats），换窗口必变。"""
+    melds = snapshot.get("melds") or []
+    return (snapshot.get("round_no"), snapshot.get("phase"), snapshot.get("wall_remaining"),
+            sum(len(m) for m in melds if isinstance(m, list)), snapshot.get("last_discard"))
 # 独立复核 P0-1 规则5：watchdog（无 notify 时的低频全量刷新兜底）必须
 # 明显低频，建议每局 >=2 秒——配合每次请求都经过 mj.api.MahjongApi 的全局
 # pacer（每令牌 16 次/秒），保证 10 场合计不超过官方限制，不需要额外的
@@ -783,6 +797,12 @@ class _SeqTracker:
                 self._consumed_notified_seq = self._notified_seq
 
 
+def _last_pace_ms(api):
+    local = getattr(api, "_local", None)
+    v = getattr(local, "last_pace_ms", None) if local is not None else None
+    return round(v, 1) if isinstance(v, (int, float)) else None
+
+
 def _fetch_snapshot(api, game_id, log=None, observer=None, seq=0):
     """B3 返修：正常轮询路径不再无条件调用 ``log.state()``——去重/采样已经
     通过 ``observer.observe_state()`` 承担"减少日志量"的职责，若这里仍然
@@ -836,6 +856,7 @@ def _notification_loop(api, game_id, wake, log=None, tracker=None):
     while failures < 5:
         try:
             for payload in notify_sequences(api, game_id):
+                failures = 0          # 2026-10-05：收到数据即清零，只有"连续"失败才计数（旧版只增不减，正常关流也累计）
                 if tracker is not None:
                     tracker.set_sse_health(True)
                 if log:
@@ -853,7 +874,10 @@ def _notification_loop(api, game_id, wake, log=None, tracker=None):
                 tracker.force_recovery("sse_disconnected")
         time.sleep(2)
     if tracker is not None:
+        tracker.set_sse_health(False)   # 放弃通知后主循环改用 1 秒看门狗，而不是 5 秒
         tracker.force_recovery("notifier_unavailable")
+    if log:
+        log.append("notifier_exit", {"game_id": game_id, "failures": failures})
     wake.set()
 
 
@@ -892,6 +916,27 @@ def _ab_assign(ab, room_id, log):
                               "seed": ab["seed"], "time": utc_now()})
     print("A/B：房间 %s 整房使用 %s（%s），种子 %d" % (room_id, label, name, ab["seed"]))
     return label, overlay
+
+
+def _safe_fallback(snapshot, rules=None, gang_open=False):
+    """choose_action 抛异常时的兜底：能胡就胡；摸牌阶段打摸到的牌（没有就打最右一张）；响应窗口一律过。
+    这里本身再出错（快照残缺等）就返回 None，由调用方按"无决策"等下一次快照。"""
+    try:
+        phase = snapshot.get("phase")
+        if phase == "draw" and snapshot.get("turn") == snapshot.get("seat"):
+            try:
+                if can_hu(snapshot, rules, gang_open=gang_open):
+                    return {"action": "hu", "tile": snapshot.get("drawn_tile") or ""}
+            except Exception:   # noqa: BLE001
+                pass
+            hand = snapshot.get("my_hand") or []
+            tile = snapshot.get("drawn_tile") or (hand[-1] if hand else "")
+            return {"action": "discard", "tile": tile} if tile else None
+        if phase in ("response_peng", "response_chi"):
+            return {"action": "pass", "tile": ""}
+    except Exception:   # noqa: BLE001
+        pass
+    return None
 
 
 def play_game(api, game_id, log, rules=None, overlay=None):
@@ -956,7 +1001,27 @@ def _play_game_loop(api, game_id, log, rules, observer):
     notifier.start()
     last_poll = 0.0
     dead_polls = 0
+    prev_sent = None      # 上一次"拿到快照"的拉取的发出时刻（含排队，偏早 = 偏保守）
+    prev_wid = None
+    wid_quiet = 0.0       # 当前响应窗口可以静默到的时刻（0 = 不静默）
+    quiet_wid = None      # 确认"这个窗口没我们的事了"的窗口：成功提交响应 / 不在 responding_seats。409 不算（视图可能已过期）
+    quiet_until = 0.0
+    quiet_n = 0           # 本场实际静默次数（随 state_request_metric 落盘，验收用）
+
+    def _quiet_target():
+        if prev_wid is None or prev_wid != quiet_wid:
+            return 0.0
+        return wid_quiet if wid_quiet > time.monotonic() else 0.0
+
     while True:
+        if quiet_until:
+            delay = quiet_until - time.monotonic()
+            quiet_until = 0.0
+            if delay > 0:
+                quiet_n += 1
+                time.sleep(min(delay, RESPONSE_QUIET))
+                wake.clear()          # 丢掉窗口内别家过/超时触发的唤醒；关窗事件一定在静默结束之后才来
+                wake.wait(0.3)
         wake.clear()
         gap = POLL_MIN_GAP - (time.monotonic() - last_poll)
         if gap > 0:
@@ -1023,12 +1088,14 @@ def _play_game_loop(api, game_id, log, rules, observer):
         # 0 的 notify_to_state_matches）。
         returned_seq = response.get("seq")
         response_gap = bool(response.get("gap"))
+        pace_ms_now = _last_pace_ms(api)
         log.state_request_metric(
             game_id=game_id, requested_seq=request_seq, returned_seq=returned_seq,
             trigger=trigger, elapsed_ms=round((time.monotonic() - fetch_started) * 1000, 3),
             pending=bool(response.get("pending")), gap=response_gap,
             state_hash=_state_hash(_normalize_state(snapshot, rules=rules))
             if snapshot else None,
+            pace_ms=pace_ms_now, n429=getattr(type(api), "count_429", None), quiet_n=quiet_n,
         )
         seq_tracker.observe_response(returned_seq, gap=response_gap, trigger=trigger)
         # B3：每次拿到有效快照都规范化 + 计算 state_hash 喂给观测器——
@@ -1054,6 +1121,19 @@ def _play_game_loop(api, game_id, log, rules, observer):
             pending_gang = False
             last_round = round_no
         phase = snapshot.get("phase")
+        if phase in ("response_peng", "response_chi"):
+            wid = _window_id(snapshot)
+            if wid != prev_wid:   # 这次拉取第一次看到这个窗口：它是在上一次拉取被处理之后才打开的
+                wid_quiet = (prev_sent + RESPONSE_QUIET) if (prev_sent is not None and RESPONSE_QUIET > 0) else 0.0
+            prev_wid = wid
+        else:
+            prev_wid = None
+            wid_quiet = 0.0
+        # 2026-10-05 实测修正：界限要用请求真正发出的时刻（排队等待之后），不能用排队前的时刻。
+        # 限速排队 p50 约 260ms，用排队前时刻会让静默期几乎为 0（10/05 三房实测拉取量毫无下降）。
+        # 服务器处理第 k−1 次请求一定在它真正发出之后，所以"关窗 > 发出时刻 + 1 秒"仍然成立。
+        fetch_pace = pace_ms_now / 1000.0 if pace_ms_now is not None else 0.0
+        prev_sent = fetch_started + fetch_pace
         if phase != last_phase:
             responded.clear()
             rejections.clear()
@@ -1084,10 +1164,14 @@ def _play_game_loop(api, game_id, log, rules, observer):
             # 强制等待下一次 /state 轮询取得新窗口（新一轮/新弃牌/外层 seq
             # 推进后 _response_window_key 自然产生不同的键）。
             if response_window_key in submitted_response_windows or response_window_key in stale_response_windows:
-                wake.wait(seq_tracker.watchdog_interval())
+                quiet_until = _quiet_target()
+                if not quiet_until:
+                    wake.wait(seq_tracker.watchdog_interval())
                 continue
         if phase in ("response_peng", "response_chi") and seat in responded:
-            wake.wait(seq_tracker.watchdog_interval())
+            quiet_until = _quiet_target()
+            if not quiet_until:
+                wake.wait(seq_tracker.watchdog_interval())
             continue
         started = time.monotonic()
         call_rules = rules
@@ -1107,10 +1191,23 @@ def _play_game_loop(api, game_id, log, rules, observer):
             decision = {"action": "discard", "tile": fallback_tile} if fallback_tile else None
         else:
             mc_ctx = {"t0": started, **chain_tracker.ctx(snapshot)}
-            decision = choose_action(snapshot, call_rules, gang_open=pending_gang, mc_ctx=mc_ctx)
+            try:
+                decision = choose_action(snapshot, call_rules, gang_open=pending_gang, mc_ctx=mc_ctx)
+            except Exception as error:   # noqa: BLE001
+                # 2026-10-05 外部评审 P0：策略在罕见局面抛异常会结束整个对局线程，GameLedger 不会重新派发，
+                # 该场剩余局全部由服务端代打。这里记日志后改用最保守的合法动作，对局继续。
+                log.error(game_id, error)
+                decision = _safe_fallback(snapshot, call_rules, pending_gang)
+                log.append("safe_fallback", {"game_id": game_id, "phase": phase,
+                                             "error": sanitize_text(repr(error), limit=200),
+                                             "decision": decision})
         prepare_ms = (time.monotonic() - started) * 1000
         if not decision:
-            wake.wait(seq_tracker.watchdog_interval())
+            if phase in ("response_peng", "response_chi"):   # 不在 responding_seats：这个窗口没我们的事
+                quiet_wid = prev_wid
+                quiet_until = _quiet_target()
+            if not quiet_until:
+                wake.wait(seq_tracker.watchdog_interval())
             continue
         if decision["action"] == "pass":
             responded.add(seat)
@@ -1225,6 +1322,8 @@ def _play_game_loop(api, game_id, log, rules, observer):
         if phase in ("response_peng", "response_chi") and response_window_key is not None:
             # P0 修复：成功提交后不再对同一窗口提交第二次。
             submitted_response_windows.add(response_window_key)
+            quiet_wid = prev_wid
+            quiet_until = _quiet_target()   # 成功提交响应后：窗口剩余时间不再为本场拉取
         if is_fallback:
             log.fallback_sent(game_id, snapshot, decision.get("tile"), True, decision_id=decision_id)
             log.decision_attempt_outcome(decision_id=decision_id, outcome="fallback_sent",
@@ -1468,11 +1567,24 @@ def main():
                     print("对局线程异常:", sanitize_text(repr(error)))
                     traceback.print_exc()
 
-        decision = _run_tournament(
-            api, max_seconds=args.wait_seconds, on_play=_on_play,
-            max_consecutive_errors=args.max_consecutive_errors,
-            max_consecutive_command_errors=args.max_consecutive_command_errors,
-        )
+        # 2026-10-05 外部评审 P0：run_tournament 连续 20 次网络/命令失败（约 7 分钟断网）会 raise，
+        # 进程退出后赛方代跑无人重启，后续对局全部由服务端代打。这里在进程内重启状态机：
+        # register/ready 幂等（409 ALREADY_READY 视为成功），GameLedger 随新状态机清空，进行中的对局会被重新接回。
+        # 只有状态机正常返回（赛事终态 / --wait-seconds 到时）或 Ctrl+C 才退出。
+        restarts = 0
+        while True:
+            try:
+                decision = _run_tournament(
+                    api, max_seconds=args.wait_seconds, on_play=_on_play,
+                    max_consecutive_errors=args.max_consecutive_errors,
+                    max_consecutive_command_errors=args.max_consecutive_command_errors,
+                )
+                break
+            except Exception as error:   # noqa: BLE001
+                restarts += 1
+                print("赛事状态机异常（第 %d 次），30 秒后重启：%s" % (restarts, sanitize_text(repr(error))))
+                traceback.print_exc()
+                time.sleep(30)
         print("赛事状态机结束:", decision.action, decision.reason)
         if hasattr(log, "close"):
             # 正常退出路径：尽量排空异步日志队列（超时容许尾部损失，
