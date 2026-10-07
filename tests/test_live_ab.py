@@ -42,6 +42,25 @@ class AbPick(unittest.TestCase):
         self.assertEqual(overlay, ab["overlays"][0 if label == "A" else 1])
 
 
+class AbThreeArms(unittest.TestCase):
+    def test_three_arms_round_robin_balanced_and_sticky(self):
+        with tempfile.TemporaryDirectory() as d:
+            paths = []
+            for i in range(2):
+                p = os.path.join(d, "arm%d.json" % i)
+                with open(p, "w") as f:
+                    json.dump({"k": i}, f)
+                paths.append(p)
+            ab = bot._load_ab("%s,%s,current" % tuple(paths), seed=11)
+        self.assertEqual(ab["labels"], ("A", "B", "C"))
+        log = MagicMock()
+        labels = [bot._ab_assign(ab, "room%d" % i, log)[0] for i in range(30)]
+        self.assertEqual(sorted(labels.count(x) for x in "ABC"), [10, 10, 10])
+        self.assertEqual(bot._ab_assign(ab, "room3", log)[0], labels[3])      # 同一房重进不换组
+        with self.assertRaises(ValueError):
+            bot._load_ab(",".join(["current"] * 7))
+
+
 class ThreadOverlay(unittest.TestCase):
     def test_unused_is_byte_identical(self):
         self.assertEqual(load_weights(), dict(DEFAULT_WEIGHTS))

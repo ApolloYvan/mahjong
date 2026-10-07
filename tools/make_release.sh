@@ -62,6 +62,9 @@ w = load_weights()
 bad = {k: v for k, v in w.items() if (k.startswith(("nn_", "mc_")) and k.endswith("_enabled") and v)
        or (k in ("s1_wall_relax_enabled", "s1_one_step_enabled", "s1_ev_enabled", "gang_strict_enabled",
                  "dealer_slow1_enabled", "joker_nonbaotou_hu_disabled") and v)}
+# v1.4：早巡收窄版 E2 是正式功能（墙剩 −20 ≥ 34 且副露 ≤ 1），不算实验开关；不加收窄的 E2 仍然禁止
+if bad.get("s1_one_step_enabled") and w.get("s1_one_step_wall_min", 0) >= 34 and w.get("s1_one_step_max_melds", 9) <= 1:
+    bad.pop("s1_one_step_enabled")
 if bad:
     raise SystemExit("!!! 实验开关没关：%s" % bad)
 print("  通过；生效的 rule_* 开关：%s" % sorted(k for k, v in w.items() if k.endswith("_enabled") and v))

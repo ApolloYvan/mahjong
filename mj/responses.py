@@ -159,6 +159,8 @@ def choose_peng(snapshot):
         return None
     if snapshot.get("wall_remaining", 99) <= 4 and snapshot.get("chain_count", 0) == 0:
         return None
+    if _dealer_flat_peng_veto(snapshot, hand, tile):
+        return None
     claim_decision = _route_ev_claim_decision(snapshot, hand, (tile, tile))
     if claim_decision is True:
         return {"action": "peng", "tile": tile}
@@ -172,6 +174,20 @@ def choose_peng(snapshot):
     if not claim_assessment(snapshot, (tile, tile))["allowed"]:
         return None
     return {"action": "peng", "tile": tile}
+
+
+def _dealer_flat_peng_veto(snapshot, hand, tile):
+    """开关 dealer_joker_flat_peng_veto（默认 0）：做庄且手上有财神时，不碰「碰完向听不变、也不成爆头」的牌。
+    2026-10-07 tools/role_diff.py（起手 1 财神）：这类碰 强手做庄接受 64%，我们 80%；
+    强手做庄时到过爆头听 +3.1pp、爆头占胡 +3.1pp，我们反而 −4.4 / −12.9。"""
+    if not load_weights().get("dealer_joker_flat_peng_veto", 0):
+        return False
+    if snapshot.get("dealer") != snapshot.get("seat") or "白" not in hand:
+        return False
+    a = claim_assessment(snapshot, (tile, tile), weights={})
+    if a.get("after_shanten") is None or a.get("before_shanten") is None:
+        return False
+    return a["after_shanten"] >= a["before_shanten"] and not a.get("after_baotou")
 
 
 def _fitted_claim_scores(snapshot, takes):

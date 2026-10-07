@@ -314,7 +314,11 @@ def _decline_small_hu_tile(snapshot, hu_result, weights=None):
         return None
     tile = _decline_discard_choice(snapshot, hu_result)
     # E2（s1_one_step_enabled，默认 0）：没有能直接转爆头的牌时，允许"差一步转爆头"的弃胡
-    if tile is None and weights.get("s1_one_step_enabled", 0):
+    if tile is None and weights.get("s1_one_step_enabled", 0) \
+            and snapshot.get("wall_remaining", 40) - 20 >= weights.get("s1_one_step_wall_min", 0) \
+            and meld_groups <= weights.get("s1_one_step_max_melds", 9):
+        # 早巡收窄（2026-10-07，tools/baotou_take_scan.py）：高手 2+ 财神、不能直接转爆头时的弃胡
+        # 集中在墙剩 54~79、副露 0/1（弃胡率 33% / 20%，2+ 露只有 10%）；E2 不加限制时平台 −0.19。
         tile = s1_variants.one_step_choice(snapshot, hu_result, weights, meld_groups)
     return tile
 

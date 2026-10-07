@@ -32,11 +32,15 @@ OUR = "重生之我是雀神"
 JOKER = "白"
 MASTERS = {"⭐꧁༺🀆🀆🀆🀆༻꧂⭐", "Deepseek胡", "爆头研究所", "Astra-0", "晴总总，该请桂语山房了",
            "glm-flash", "铳一色14", "歪比巴卜肉蛋葱鸡", "放假了偷偷训练", "康陶应雀"}
+# 2026-10-04 master_oos 样本外核实过的真高手（MASTERS 里一半样本外只有 +0.2，别再用来当标杆）
+TOP_OOS = {"腾蛇-0638", "歪比巴卜肉蛋葱鸡", "⭐꧁༺🀆🀆🀆🀆༻꧂⭐", "玄武-2346", "鲲鹏~6383", "算我求您了"}
 _RECENT = set()
+_TOP = set()
 
 
-def _init(recent):
+def _init(recent, top):
     _RECENT.update(recent)
+    _TOP.update(top)
 
 
 def scan(path):
@@ -52,7 +56,7 @@ def scan(path):
     room = game.get("room_id") or ""
     groups = {}
     for s, n in enumerate(names):
-        if n in MASTERS:
+        if n in _TOP:
             groups[s] = "高手"
         elif n == OUR:
             groups[s] = "我们(当前)" if room in _RECENT else "我们(以前)"
@@ -192,12 +196,14 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--since", default="2026-09-25T15:30", help="「我们(当前)」只取这个 UTC 时间之后开打的房")
     ap.add_argument("--jobs", type=int, default=6)
+    ap.add_argument("--top", choices=("oos", "old"), default="oos", help="高手组：oos=样本外核实的 6 人（默认），old=旧 MASTERS")
     args = ap.parse_args()
+    top = TOP_OOS if args.top == "oos" else MASTERS
     recent = recent_rooms(args.since)
     print("「我们(当前)」的房：%d 个（%s 之后）" % (len(recent), args.since))
     files = discover_files()
     rows = []
-    with Pool(args.jobs, initializer=_init, initargs=(recent,)) as pool:
+    with Pool(args.jobs, initializer=_init, initargs=(recent, top)) as pool:
         for done, part in enumerate(pool.imap_unordered(scan, files, chunksize=8), 1):
             rows += part
             if done % 500 == 0 or done == len(files):

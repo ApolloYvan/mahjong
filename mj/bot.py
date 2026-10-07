@@ -882,10 +882,11 @@ def _notification_loop(api, game_id, wake, log=None, tracker=None):
 
 
 def _load_ab(spec, seed=None):
-    """``--ab A.json,B.json``：两份权重覆盖（JSON 对象；空串/"current"/"-" = 当前配置，不覆盖）。返回 dict（含记录用的种子）。"""
+    """``--ab A.json,B.json[,C.json...]``：两份及以上权重覆盖（JSON 对象；空串/"current"/"-" = 当前配置，不覆盖）。
+    返回 dict（含记录用的种子）。组名依次为 A、B、C……；房间按进入顺序轮流分组（各组房数相差不超过 1）。"""
     parts = [x.strip() for x in str(spec).split(",")]
-    if len(parts) != 2:
-        raise ValueError("--ab 需要恰好两项：A.json,B.json")
+    if len(parts) < 2 or len(parts) > 6:
+        raise ValueError("--ab 需要 2~6 项：A.json,B.json[,C.json]")
     overlays, names = [], []
     for part in parts:
         if part in ("", "current", "-"):
@@ -901,16 +902,25 @@ def _load_ab(spec, seed=None):
         names.append(os.path.splitext(os.path.basename(part))[0])
     if seed is None:
         seed = int.from_bytes(os.urandom(4), "big")
-    return {"labels": ("A", "B"), "names": tuple(names), "overlays": tuple(overlays), "seed": int(seed)}
+    return {"labels": tuple("ABCDEF"[:len(parts)]), "names": tuple(names), "overlays": tuple(overlays),
+            "seed": int(seed), "memo": {}, "lock": threading.Lock()}
 
 
-def _ab_pick(seed, room_id):
-    """这一房用 A(0) 还是 B(1)：由（种子, 房号）的哈希决定——随机、可复现、同一房永远同一结果。"""
-    return int(hashlib.md5(("%s:%s" % (seed, room_id)).encode()).hexdigest()[:8], 16) % 2
+def _ab_pick(seed, room_id, n=2):
+    """这一房用第几组：由（种子, 房号）的哈希决定——随机、可复现、同一房永远同一结果。"""
+    return int(hashlib.md5(("%s:%s" % (seed, room_id)).encode()).hexdigest()[:8], 16) % n
 
 
 def _ab_assign(ab, room_id, log):
-    idx = _ab_pick(ab["seed"], room_id)
+    memo = ab.get("memo")
+    if memo is not None:
+        # 轮流分组：起点由种子决定；同一进程里同一房重进（--wait 内部重启）仍用原组
+        with ab["lock"]:
+            if room_id not in memo:
+                memo[room_id] = (ab["seed"] + len(memo)) % len(ab["labels"])
+            idx = memo[room_id]
+    else:
+        idx = _ab_pick(ab["seed"], room_id, len(ab["labels"]))
     label, name, overlay = ab["labels"][idx], ab["names"][idx], ab["overlays"][idx]
     log.append("ab_assign", {"room_id": room_id, "label": label, "config": name, "overlay": overlay,
                               "seed": ab["seed"], "time": utc_now()})

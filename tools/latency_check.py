@@ -141,7 +141,7 @@ def main():
     ap.add_argument("--since", required=True, help="UTC，如 2026-10-06T01:00（bot 启动时刻）")
     ap.add_argument("--until", default=None)
     ap.add_argument("--jobs", type=int, default=6)
-    ap.add_argument("--arm", choices=["A", "B"], default=None, help="bot --ab 模式：只看分到这一组的房间")
+    ap.add_argument("--arm", choices=["A", "B", "C"], default=None, help="bot --ab 模式：只看分到这一组的房间")
     args = ap.parse_args()
     first = room_first_seen()
     rooms = {r for r, t in first.items() if t >= args.since and (not args.until or t <= args.until)}
