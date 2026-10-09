@@ -305,6 +305,28 @@ def _baotou_gang_open_choice(snapshot, weights=None):
     return None
 
 
+def _bu_defer_tile(snapshot, weights=None):
+    """bu_defer_enabled（默认关，2026-10-08）：持财神、墙剩 > bu_defer_wall_min 时，手里那张「自己碰牌的第 4 张」
+    先留着——不当场补杠、也不打掉。它和财神凑成对子；等其余牌成形（能胡）时，``_baotou_gang_open_choice``
+    补杠它，剩下正好爆头听，岭上必胡 = 杠开·爆头 4番。返回要留的那张，不适用返回 None。
+
+    tools/gangkai_study.py：玄武-2346 摸到第 4 张 53 次留了 22 次（我们 67 次留 4 次）；他持财神时留的 9 局
+    胡 5 局、其中 4 局杠开·爆头，+34.8/局；无财神留的 13 局 −3.7/局，所以只在持财神时留。"""
+    weights = weights if weights is not None else load_weights()
+    if not weights.get("bu_defer_enabled", 0):
+        return None
+    if snapshot.get("wall_remaining", 0) <= weights.get("bu_defer_wall_min", 24):
+        return None
+    hand = snapshot.get("my_hand") or []
+    if JOKER not in hand:
+        return None
+    for meld in _melds_for_seat(snapshot, snapshot.get("seat", -1)):
+        tiles = meld.get("tiles", []) if isinstance(meld, dict) else []
+        if len(tiles) == 3 and len(set(tiles)) == 1 and tiles[0] != JOKER and tiles[0] in hand:
+            return tiles[0]
+    return None
+
+
 def _nn_valid(snapshot, action, rules, gang_open):
     """网络给出的动作再用生产自己的判定校验一遍（规则开关、墙尾禁杠、抓打圈等）；不通过 -> 回落生产。"""
     kind = action.get("action")
@@ -488,10 +510,13 @@ def _choose_action_production(snapshot, rules=None, gang_open=False, no_gang=Fal
             if not no_gang and drawn != "白" and hand.count(drawn) >= 4 and snapshot.get("wall_remaining", 99) > 20:
                 return {"action": "gang", "tile": drawn}
             return {"action": "discard", "tile": drawn}
+        keep = None if no_gang else _bu_defer_tile(snapshot)
         if not no_gang and snapshot.get("drawn_tile") and snapshot.get("wall_remaining", 99) > 20:
-            gang = choose_gang(snapshot)
+            gang = choose_gang(snapshot, skip=keep)
             if gang:
                 return gang
+        if keep:
+            return choose_discard(snapshot, {**(rules or {}), "_keep": (keep,)})
         return choose_discard(snapshot, rules)
     if phase == "response_peng" and seat in (snapshot.get("responding_seats") or []):
         if catch_restricted:

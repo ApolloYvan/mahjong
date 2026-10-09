@@ -365,6 +365,13 @@ def run_tournament(
     consecutive_command_errors = 0
     _kickoff_done = [False]
     _last_state = [None]
+    # 2026-10-08 测试赛实测：服务端赛事详情里**没有 my_ready 字段**，/api/me 也不再给 tournaments 列表，
+    # 屏幕上的「出席」一直显示未确认；详情接口还会间歇 404 TOURNAMENT_GONE（约 3 成），状态在
+    # 「报名期 / 尚未发现赛事」之间来回跳。改为：出席以 ready 接口自己的返回为准（按阶段号记），
+    # GONE 时沿用上一次成功的详情（最多连续 20 次，约 1 分钟），不把它当成「赛事消失」。
+    _last_info = [{}]
+    _gone_streak = [0]
+    _ready_ok = {}            # {阶段号: 服务端 ready 返回的原文摘要}
     while deadline is None or clock() < deadline:
         try:
             me = api.me()
@@ -373,11 +380,14 @@ def run_tournament(
             if tid:
                 try:
                     info = api.tournament(tid) or {}
+                    _last_info[0], _gone_streak[0] = info, 0
                 except ApiError as error:
                     # v35：TOURNAMENT_GONE 是暂时不可达（下一轮重新查），
                     # TOURNAMENT_NOT_FOUND 才是真的没有；两者共用 404。
                     if error.status == 404:
-                        info = {}
+                        _gone_streak[0] += 1
+                        gone = (error.code or "") != "TOURNAMENT_NOT_FOUND"
+                        info = _last_info[0] if (gone and _gone_streak[0] <= 20) else {}
                     else:
                         raise
             snapshot = TournamentSnapshot(
@@ -414,8 +424,10 @@ def run_tournament(
         # 只认 running。**stage_done 不算死角**——阶段之间等管理员推进时
         # my_ready=false / 活跃场=0 是完全正常的（ready 要等 stage_open 才该提交），
         # 把它算进来会误报「上不了场」并白发一次注定 409 的请求。
+        stage_no = (info.get("stage") or {}).get("no") or 1
+        ready_now = bool(info.get("my_ready")) if "my_ready" in info else stage_no in _ready_ok
         _stuck = (snapshot.status == "running"
-                  and not info.get("my_ready")
+                  and not ready_now
                   and not snapshot.active_games)
         if _stuck and not _kickoff_done[0]:
             _kickoff_done[0] = True
@@ -424,6 +436,8 @@ def run_tournament(
                     try:
                         getattr(api, name)(tid)
                         print("[tournament] 启动自检 %s: OK" % name)
+                        if name == "ready":
+                            _ready_ok[stage_no] = "启动自检 200"
                     except ApiError as error:
                         print("[tournament] 启动自检 %s 被拒: HTTP %s %s"
                               % (name, error.status, error.code or ""))
@@ -433,7 +447,7 @@ def run_tournament(
         # 状态可见性：只在变化时打印，不刷屏。原先整个轮询循环零输出，
         # 这是 2026-09-24 那次「盯着空白终端 20 分钟」的直接原因。
         state_key = (snapshot.status, info.get("stage_status"),
-                     bool(info.get("my_ready")), bool(snapshot.qualified),
+                     ready_now, bool(snapshot.qualified),
                      len(snapshot.active_games or []))
         if state_key != _last_state[0]:
             _last_state[0] = state_key
@@ -448,7 +462,12 @@ def run_tournament(
             parts = [_status_zh.get(snapshot.status, str(snapshot.status))]
             if stage.get("no"):
                 parts.append("第%s/%s阶段" % (stage.get("no"), stage.get("total")))
-            parts.append("出席：%s" % ("已确认" if info.get("my_ready") else "未确认"))
+            if ready_now:
+                parts.append("出席：已确认%s" % ("" if "my_ready" in info else "（ready 接口返回 %s）" % _ready_ok.get(stage_no, "")))
+            elif snapshot.status in ("registering", "stage_open"):
+                parts.append("出席：确认中…")
+            else:
+                parts.append("出席：未确认")
             if snapshot.active_games:
                 parts.append("进行中对局 %d 场" % len(snapshot.active_games))
             print("[赛事] " + "｜".join(parts))
@@ -457,7 +476,7 @@ def run_tournament(
             if snapshot.status == "stage_done":
                 print("       阶段之间的正常等待，出席要等下一阶段开放后再确认，进程别关")
             if (snapshot.status == "running"
-                    and not info.get("my_ready") and not snapshot.active_games):
+                    and not ready_now and not snapshot.active_games):
                 print("       ❌ 已开赛但我们未确认出席，也没有对局 —— 本阶段上不了场了。")
                 print("          ready 只在开赛前受理（之后一律 409 TOURNAMENT_STARTED）。")
                 print("          下次请在开赛前跑 tools/tourney_guard.py，确认「出席=True」再开赛。")
@@ -486,14 +505,19 @@ def run_tournament(
                         raise
         elif decision.action == "ready":
             try:
-                api.ready(tid)
+                resp = api.ready(tid)
+                _ready_ok[stage_no] = "ready=%s" % (resp or {}).get("ready", "?") if isinstance(resp, dict) else "200"
+                print("[赛事] ✅ 出席确认成功：第%s阶段，服务端返回 %s" % (stage_no, _ready_ok[stage_no]))
                 # 只有确认成功才提交"已确认出席"状态；失败则不提交，
                 # 下一轮 step() 在相同状态下会再次返回 ready 决定，
                 # 从而重试，而不是被永久跳过（P0 修复点）。
                 lifecycle.confirm_readied()
                 consecutive_command_errors = 0
             except ApiError as error:
+                print("[赛事] 出席确认被拒：HTTP %s %s" % (error.status, error.code or ""))
                 if error.status == 409 and _is_already_readied_409(error):
+                    if (error.code or "") == "ALREADY_READY":
+                        _ready_ok[stage_no] = "ALREADY_READY"
                     # 409 且明确包含 ALREADY_READY/TOURNAMENT_STARTED：视为
                     # 幂等成功（服务端已经认可了这次出席，或阶段已经开赛）
                     # ——提交"已确认出席"状态，清零命令错误计数器，不再重试。

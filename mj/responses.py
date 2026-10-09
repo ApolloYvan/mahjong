@@ -84,7 +84,7 @@ def _gang_gate(hand, tile, kind, meld_groups):
                 and gang_hurts_shape(hand, tile, kind, meld_groups))
 
 
-def choose_gang(snapshot):
+def choose_gang(snapshot, skip=None):
     """暗杠门禁（P0 修复：牌数语义纠正）。
 
     生产快照的 ``my_hand`` **包含** ``drawn_tile`` 本身（摸牌后手牌是
@@ -109,7 +109,7 @@ def choose_gang(snapshot):
     for meld in _melds(snapshot):
         tiles = meld.get("tiles", []) if isinstance(meld, dict) else []
         if tiles and len(tiles) == 3 and len(set(tiles)) == 1 and hand.count(tiles[0]) >= 1 \
-                and _gang_gate(hand, tiles[0], "bu", groups):
+                and tiles[0] != skip and _gang_gate(hand, tiles[0], "bu", groups):
             return {"action": "gang", "tile": tiles[0]}
     return None
 
@@ -159,7 +159,7 @@ def choose_peng(snapshot):
         return None
     if snapshot.get("wall_remaining", 99) <= 4 and snapshot.get("chain_count", 0) == 0:
         return None
-    if _dealer_flat_peng_veto(snapshot, hand, tile):
+    if _dealer_flat_peng_veto(snapshot, hand, tile) or _nojoker_flat_peng_veto(snapshot, hand, tile):
         return None
     claim_decision = _route_ev_claim_decision(snapshot, hand, (tile, tile))
     if claim_decision is True:
@@ -183,6 +183,18 @@ def _dealer_flat_peng_veto(snapshot, hand, tile):
     if not load_weights().get("dealer_joker_flat_peng_veto", 0):
         return False
     if snapshot.get("dealer") != snapshot.get("seat") or "白" not in hand:
+        return False
+    a = claim_assessment(snapshot, (tile, tile), weights={})
+    if a.get("after_shanten") is None or a.get("before_shanten") is None:
+        return False
+    return a["after_shanten"] >= a["before_shanten"] and not a.get("after_baotou")
+
+
+def _nojoker_flat_peng_veto(snapshot, hand, tile):
+    """开关 flat_peng_veto_nojoker（默认 0，2026-10-08）：手上没有财神时，不碰「碰完向听不变、也不成爆头」的牌（庄闲都管）。
+    tools/player_study.py 16 强合并（v1.2 后同桌 59 房、6052 局）：起手 0 财神时这类碰 16 强接受 40.5%、其他对手 36.2%，
+    我们 65.7%；同组我们 −2.59/局、16 强 −2.06/局，是我们唯一落后 16 强的分组。"""
+    if not load_weights().get("flat_peng_veto_nojoker", 0) or "白" in hand:
         return False
     a = claim_assessment(snapshot, (tile, tile), weights={})
     if a.get("after_shanten") is None or a.get("before_shanten") is None:

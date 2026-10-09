@@ -33,8 +33,42 @@ def _hms(seconds):
     return "%s%d:%02d:%02d" % (sign, seconds // 3600, seconds % 3600 // 60, seconds % 60)
 
 
+def _detail(api, tid):
+    """赛事详情；404 TOURNAMENT_GONE（服务端间歇不可达，2026-10-08 实测约 3 成）重试几次。"""
+    for _ in range(6):
+        try:
+            return api.tournament(tid) or {}
+        except ApiError as error:
+            if error.status != 404 or (error.code or "") == "TOURNAMENT_NOT_FOUND":
+                raise
+            time.sleep(1.5)
+    return {}
+
+
 def check(api, auto):
-    rows = (api.me() or {}).get("tournaments") or []
+    me = api.me() or {}
+    rows = me.get("tournaments") or []
+    # 2026-10-08：服务端 /api/me 不再给 tournaments 列表，只给 tournament_id（参赛令牌绑定的那场）；
+    # 详情里也没有 my_registered / my_ready。参赛令牌本身就是报名后才发的 => 已报名；
+    # 出席以 ready 接口自己的返回为准（registering / stage_open 期间每轮幂等提交一次）。
+    if not rows and me.get("tournament_id"):
+        tid = me["tournament_id"]
+        item = dict(_detail(api, tid), id=tid)
+        item.setdefault("my_registered", True)
+        cfg = item.get("config") or {}
+        item.setdefault("start_at", cfg.get("StartAt"))
+        item.setdefault("register_deadline", cfg.get("RegisterDeadlineAt"))
+        if "my_ready" not in item:
+            item["my_ready"] = None
+            if auto and item.get("status") in ("registering", "stage_open"):
+                try:
+                    resp = api.ready(tid) or {}
+                    item["my_ready"] = bool(resp.get("ready", True))
+                    print("   → ready 提交成功，服务端返回 %s" % resp)
+                except ApiError as error:
+                    print("   → ready 被拒: HTTP %s %s" % (error.status, error.code or ""))
+                    item["my_ready"] = False if error.code == "NOT_QUALIFIED" else None
+        rows = [item]
     if not rows:
         print("%s  没有可见赛事（令牌未绑定任何锦标赛，或全部已结束）"
               % time.strftime("%H:%M:%S"))
@@ -46,7 +80,7 @@ def check(api, auto):
         deadline = item.get("register_deadline") or 0
         now = time.time()
         registered = bool(item.get("my_registered"))
-        ready = bool(item.get("my_ready"))
+        ready = item.get("my_ready")
         status = item.get("status")
         stage = (item.get("stage") or {})
         line = ("%s  %s  阶段%s/%s %s/%s  报名=%s 出席=%s 资格=%s"
@@ -61,12 +95,20 @@ def check(api, auto):
         if auto and tid:
             if not registered and (not deadline or now < deadline):
                 _try(api.register, tid, "register")
-            if registered and not ready:
+            if registered and ready is False and "tournaments" in (me or {}):
                 _try(api.ready, tid, "ready")
 
         if not registered:
             print("   ❌ 未报名。截止 %s"
                   % (time.strftime("%H:%M:%S", time.localtime(deadline)) if deadline else "无"))
+            all_ok = False
+        elif ready is None and status == "running":
+            if item.get("my_games"):
+                print("   ✅ 已分到对局 %d 场（服务端不返回出席字段，以有对局为准）" % len(item.get("my_games")))
+            else:
+                print("   ⚠ 服务端不返回出席字段；开赛前 ready 已返回 true 就不用管，保持 bot 运行")
+        elif ready is None:
+            print("   ⚠ 出席状态未知（ready 未提交成功），下一轮重试")
             all_ok = False
         elif not ready:
             remain = (start - now) if start else None

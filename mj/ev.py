@@ -166,6 +166,8 @@ def choose_route_discard(tiles, meld_groups=0, chain_count=0, piao=0, rules=None
 
     def _original():
         unique = sorted(set(tiles))
+        keep = (rules or {}).get("_keep") or ()      # bu_defer：留着的碰牌第 4 张不进候选
+        unique = [t for t in unique if t not in keep] or unique
         currents = {}
         for tile in unique:
             remaining = list(tiles)
@@ -213,12 +215,12 @@ def choose_route_discard(tiles, meld_groups=0, chain_count=0, piao=0, rules=None
     from . import route_ev
     override = route_ev.maybe_override_discard(tiles, meld_groups, chain_count, piao, rules, merged, visible,
                                                _cached_original)
-    if override is not None:
+    if override is not None and override not in ((rules or {}).get("_keep") or ()):
         return override
     # 2026-09-28：P2 速度前瞻，同 mj.strategy.choose_discard，两个入口共用
     # 同一个 mj.route_ev.maybe_override_speed，避免两份平行评分体各写一份。
     speed_override = route_ev.maybe_override_speed(tiles, meld_groups, chain_count, piao, rules, merged,
                                                     visible, _cached_original)
-    if speed_override is not None:
+    if speed_override is not None and speed_override not in ((rules or {}).get("_keep") or ()):
         return speed_override
     return _cached_original()

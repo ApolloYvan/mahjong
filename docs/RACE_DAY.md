@@ -20,7 +20,7 @@ cd /Users/yuanye/coding_workspace/mahjong && python3 -c "from mj.token import sa
 cd /Users/yuanye/coding_workspace/mahjong && python3 -m unittest discover tests 2>&1 | tail -15
 ```
 
-结尾必须是 `OK`。出现 `FAILED` 就不要上场。
+结尾应是 `OK`。已知例外（与 v1.4/v1.5 改动无关、改动前就失败）：`tests.test_responses` 里两个暗杠用例 `test_all_choose_gang_cases`、`test_synthetic_count4_case_allows_gang`。除这两个之外出现 `FAILED` 就不要上场。
 
 ### 3. 打一个自由匹配房，确认打牌链路正常
 
@@ -41,7 +41,7 @@ cd /Users/yuanye/coding_workspace/mahjong && python3 tools/session_health.py --l
 参赛令牌**按赛事派发、只显示一次**。拿到就存，否则后面全部步骤都会 401。
 
 ```bash
-cd /Users/yuanye/coding_workspace/mahjong && python3 -c "from mj.token import save_token; print('已存到', save_token(input('粘贴参赛令牌: ')))"
+cd /Users/yuanye/coding_workspace/mahjong && python3 -c "import getpass; from mj.token import save_token; print('已存到', save_token(getpass.getpass('粘贴参赛令牌（不回显）: ')))"
 ```
 
 确认两个令牌指向**不同**文件：
@@ -84,16 +84,23 @@ cd /Users/yuanye/coding_workspace/mahjong && python3 tools/tourney_guard.py
 ### T−10min　起对战（终端 2，不要关）
 
 ```bash
-cd /Users/yuanye/coding_workspace/mahjong && python3 -m mj.bot --wait --server https://10.240.169.190:18080
+cd /Users/yuanye/coding_workspace/mahjong && caffeinate -dims sh -c 'until python3 -m mj.bot --wait --server https://10.240.169.190:18080; do sleep 10; done'
 ```
 
-正常输出：
+（意外退出 10 秒后自动拉起；赛事正常结束才停。见第六节。）
+
+正常输出（2026-10-09 起出席以 ready 接口的返回为准——服务端详情里没有出席字段）：
 
 ```
 接入指南 v35，与本 bot 一致。
-[赛事] 报名期｜第1/4阶段｜出席：已确认
-[赛事] 比赛进行中｜第1/4阶段｜出席：已确认｜进行中对局 10 场
+[赛事] 报名期｜出席：确认中…
+[赛事] ✅ 出席确认成功：第1阶段，服务端返回 ready=True
+[赛事] 报名期｜出席：已确认（ready 接口返回 ready=True）
+[赛事] 比赛进行中｜第1/4阶段｜出席：已确认（…）｜进行中对局 10 场
 ```
+
+**必须看到「✅ 出席确认成功」那一行。** 每个新阶段（stage_open）都会再出现一次。
+服务端详情间歇 404（TOURNAMENT_GONE）时沿用上一次的状态，不再在「报名期 / 尚未发现赛事」之间来回跳。
 
 ### 开赛后　两个终端都不要关
 
@@ -172,17 +179,15 @@ cd /Users/yuanye/coding_workspace/mahjong && python3 tools/score_attribution.py 
 
 ---
 
-## 附：当前策略配置
+## 附：当前策略配置（v1.6，2026-10-09；提交包仍是 v1.5）
 
-保留三处有实测证据的修复：
+- **v1.3**：状态拉取严格排队（吃碰超时减半）、异常兜底、`--wait` 状态机进程内自动重启。
+- **v1.4**：早巡弃胡转爆头——手上 2 张以上财神、墙剩 54 张以上、副露 ≤1 时，差一步转爆头也先不胡（实战 10 次触发比当场胡净 +31）。
+- **v1.5**：两个庄家开关——庄家无财神时用闲家那套出牌打分；庄家持财神时不碰"碰完向听不变、也不成爆头"的牌（27 房 A/B 庄局 +0.98，闲局两组相同）。
+- **v1.6**：v1.5 + 少弃胡——关掉「差一步转爆头」的早巡弃胡（`s1_one_step_enabled=0`）和「1 财神 / 1 副露」那一格的弃胡（`rule_decline_single_joker_one_meld_enabled=0`）；2+ 财神能直接转爆头的弃胡保留。10/09 三组 A/B（各 5 房）去运气后 +1.15±1.09/局，v1.5 前三批 103 房 +0.22±0.27；证据偏弱（z≈1.6），采用理由是它只是撤掉两条证据本来就薄的弃胡规则、方向是「能胡就胡」更稳。
+- 回滚：`cp models/weights.v1.5.json models/weights.json`（或 v1.4 / v1.3），bot 每次决策都重读权重，改完立即生效（比赛中也可以）。
 
-- `mj/ev.py` 弃财神奖励原挂在服务端从不下发的 `piao` 字段上（恒为 0，真 bug）
-- 续飘成功率按剩余步数复利（原先只乘一次，剩 3 步时乐观算了三遍）
-- `high_fan_force_fan` 3 → 12（弃财神分歧 2/2 → 0/2）
-
-2026-09-24 试过的 8 个方向全部回滚（弃牌顺序偏好、tier 过滤、同向听优化目标、合计推到4、吃碰爆头优先、听口覆盖率梯度、留白溢价单调化等）。回滚点见 `.claude/skills/mahjong-strategy/SKILL.md` §8。
-
-**已知未解决**：番/胡 1.17（高手 1.31~1.53）、爆头占胡牌 9~13%（高手 25%）。差距统计显著，机制未定位。
+**已知未解决**：番/胡仍低于顶尖强手（约 1.4 vs 1.5），差在"手上有财神时转成爆头/大牌"。
 
 ---
 

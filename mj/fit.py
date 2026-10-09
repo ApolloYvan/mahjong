@@ -163,6 +163,13 @@ DEFAULT_WEIGHTS = {
     "rule_decline_single_joker_all_melds_enabled": 0,
     # 爆头态补杠/暗杠后仍听任意 → 岭上必胡，杠开 ×2（见 mj/bot.py::_baotou_gang_open_choice）。
     "rule_baotou_gang_open_enabled": 0,
+    # 留第 4 张（2026-10-08 tools/gangkai_study.py，仿玄武-2346）：持财神时摸到自己碰牌的第 4 张不当场补杠、
+    # 也不打掉，留着和财神凑对；等其余牌成形时补杠 → 剩下正好是爆头听、岭上必胡 = 杠开·爆头 4番
+    # （_baotou_gang_open_choice 接手）。墙剩 ≤ bu_defer_wall_min 时恢复当场补杠，免得过了墙尾 20 张杠不出去。
+    "bu_defer_enabled": 0,
+    # 无财神不碰「向听不变」的牌（mj/responses.py::_nojoker_flat_peng_veto），默认关
+    "flat_peng_veto_nojoker": 0,
+    "bu_defer_wall_min": 24,
     "rule_std_pair_enabled": 0,
     "rule_decline_single_joker_one_meld_enabled": 1,   # S1 的 1白/1露 格；推演弃胡更优 87%、高手弃 96.8%，保持 1
     # 杠会拆牌型（杠后向听 > 不杠向听）就不杠（暗/补/明杠）。tools/gang_study.py：这种局面高手只杠 11%~20%，
