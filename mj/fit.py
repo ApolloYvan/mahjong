@@ -169,6 +169,8 @@ DEFAULT_WEIGHTS = {
     "bu_defer_enabled": 0,
     # 无财神不碰「向听不变」的牌（mj/responses.py::_nojoker_flat_peng_veto），默认关
     "flat_peng_veto_nojoker": 0,
+    # 爆头听 + 2+ 财神时，在同为爆头听的弃牌里选财飘张数最多的（mj/bot.py::_piao_outs_pick），默认关
+    "piao_outs_tiebreak": 0,
     "bu_defer_wall_min": 24,
     "rule_std_pair_enabled": 0,
     "rule_decline_single_joker_one_meld_enabled": 1,   # S1 的 1白/1露 格；推演弃胡更优 87%、高手弃 96.8%，保持 1

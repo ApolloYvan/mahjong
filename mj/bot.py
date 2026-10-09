@@ -35,7 +35,7 @@ from .observability import (
     stable_sample_state,
     state_hash as _state_hash,
 )
-from .rules import evaluate
+from .rules import baotou, evaluate
 from .responses import choose_chi, choose_gang, choose_peng, response_gang_take
 from .sanitize import sanitize_text
 from .state import canonical_chain_count, canonical_piao
@@ -144,8 +144,59 @@ def choose_discard(snapshot, rules=None):
         discard = (choose_route_discard(hand, meld_groups, chain_count, piao, rules, visible)
                    if use_route else choose_baseline_discard(hand, meld_groups, chain_count, piao, rules,
                                                              visible))
+        discard = _piao_outs_pick(hand, meld_groups, visible, discard, (rules or {}).get("_keep") or ())
         return {"action": "discard", "tile": discard}
     return None
+
+
+def _piao_outs(counts13, meld_groups, visible):
+    """爆头听 + 手里 2+ 财神时，下一摸能「打掉一张财神仍爆头」（= 财飘·爆头 4番）的剩余张数。
+    另一张财神顶替的位置越宽（两面 > 坎张/边张/对子），能把它换下来的牌越多。"""
+    j = TILE_INDEX[JOKER]
+    if counts13[j] < 2:
+        return 0
+    base = list(counts13)
+    base[j] -= 1
+    outs = 0
+    for i in range(len(base)):
+        if i == j:
+            continue
+        live = 4 - (visible[i] if visible else counts13[i])
+        if live <= 0:
+            continue
+        c = list(base)
+        c[i] += 1
+        if baotou(tuple(c), meld_groups):
+            outs += live
+    return outs
+
+
+def _piao_outs_pick(hand, meld_groups, visible, discard, keep=()):
+    """开关 piao_outs_tiebreak（默认 0，2026-10-09「搏大」）：原选择打完后是爆头听、且手里有 2+ 财神时，
+    在所有「打完同样是爆头听」的弃牌里换成财飘张数最多的那张。爆头听摸任何牌都胡，换哪张都不影响胡牌速度，
+    只增加下一摸直接财飘·爆头（4番）的机会。强手财飘·爆头次数是我们的 3~8 倍（10/09 room_report）。"""
+    try:
+        if not load_weights().get("piao_outs_tiebreak", 0) or not discard or hand.count(JOKER) < 2:
+            return discard
+        def after(t):
+            rest = list(hand)
+            rest.remove(t)
+            return tuple(to_counts(rest))
+        c0 = after(discard)
+        if not baotou(c0, meld_groups):
+            return discard
+        best, best_outs = discard, _piao_outs(c0, meld_groups, visible)
+        for t in sorted(set(hand)):
+            if t == JOKER or t == discard or t in keep:
+                continue
+            c = after(t)
+            if baotou(c, meld_groups):
+                o = _piao_outs(c, meld_groups, visible)
+                if o > best_outs:
+                    best, best_outs = t, o
+        return best
+    except Exception:   # noqa: BLE001 — 任何异常都回落原选择
+        return discard
 
 
 def _hand_expectation(snapshot, seat):
