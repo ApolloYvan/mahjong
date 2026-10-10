@@ -12,7 +12,9 @@ from .shanten import pair_route_allowed
 from .tiles import to_counts
 
 CL_FEATURES = ("chi", "peng", "d_shanten", "d_uke", "after_bt", "after_tenpai", "tenpai", "first",
-               "jokers", "late", "pair_route", "chi2", "dealer")
+               "jokers", "late", "pair_route", "chi2", "dealer",
+               # 2026-10-09 局面特征（拟合高手吃碰用；权重缺省为 0 = 不影响旧拟合）：
+               "mg1", "mg2", "mid", "flat_nojoker", "flat_joker", "peng_flat", "chi_flat", "uke_late")
 
 
 def option_features(hand, take, meld_groups, chi_existing, wall_remaining, is_dealer):
@@ -35,6 +37,15 @@ def option_features(hand, take, meld_groups, chi_existing, wall_remaining, is_de
     f["pair_route"] = float(meld_groups == 0 and pair_route_allowed(tuple(to_counts(hand)), 0))
     f["chi2"] = float(is_chi and chi_existing >= 1)
     f["dealer"] = float(is_dealer)
+    flat = a["after_shanten"] >= a["before_shanten"]
+    f["mg1"] = float(meld_groups == 1)
+    f["mg2"] = float(meld_groups >= 2)
+    f["mid"] = float(30 <= wall_remaining < 60)
+    f["flat_nojoker"] = float(flat and hand.count("白") == 0)
+    f["flat_joker"] = float(flat and hand.count("白") > 0)
+    f["peng_flat"] = float(flat and not is_chi)
+    f["chi_flat"] = float(flat and is_chi)
+    f["uke_late"] = f["d_uke"] * float(wall_remaining < 45)
     return f
 
 
