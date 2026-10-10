@@ -50,6 +50,7 @@
     "s1_one_step_wall_min": 34,
     "s1_one_step_max_melds": 1,
     "dealer_route_enabled": 0,
-    "dealer_joker_flat_peng_veto": 1
+    "dealer_joker_flat_peng_veto": 1,
+    "flat_peng_veto_nojoker": 1
   }
 }
